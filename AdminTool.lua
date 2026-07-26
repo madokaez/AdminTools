@@ -26,7 +26,7 @@ local requests = require 'requests'
 -- ================================================================
 -- ## АВТООБНОВЛЕНИЕ С GITHUB (только при запуске) ##
 -- ================================================================
-local SCRIPT_VERSION = "1.0.3"
+local SCRIPT_VERSION = "1.0.3"
 local REMOTE_VERSION_URL = 'https://raw.githubusercontent.com/madokaez/AdminTools/main/update.ini'
 local dlstatus = require('moonloader').download_status
 
@@ -38,18 +38,18 @@ local update_urls = {
 	['chip']       = 'https://raw.githubusercontent.com/madokaez/AdminTools/main/chip.luac',
 	['commands']   = 'https://raw.githubusercontent.com/madokaez/AdminTools/main/commands.lua',
 	['renders']    = 'https://raw.githubusercontent.com/madokaez/AdminTools/main/renders.lua',
-	['test']   	   = 'https://raw.githubusercontent.com/madokaez/AdminTools/main/test.lua',
+	['renders']    = 'https://raw.githubusercontent.com/madokaez/AdminTools/main/test.lua',
 }
 
 local update_paths = {
-	['main']       = getWorkingDirectory() .. '/AdminTool.luac',
+	['main']       = getWorkingDirectory() .. '/AdminTool.lua',
 	['events']     = getWorkingDirectory() .. '/resource/ATEvents.lua',
 	['admcheat']   = getWorkingDirectory() .. '/resource/admcheat.luac',
 	['adminstate'] = getWorkingDirectory() .. '/resource/adminstate.lua',
 	['chip']       = getWorkingDirectory() .. '/resource/chip.luac',
 	['commands']   = getWorkingDirectory() .. '/resource/commands.lua',
 	['renders']    = getWorkingDirectory() .. '/resource/renders.lua',
-	['test']    = getWorkingDirectory() .. '/resource/test.lua',
+	['renders']    = getWorkingDirectory() .. '/resource/test.lua',
 }
 
 local update_in_progress = false
@@ -96,23 +96,51 @@ local function updateDownloadAll()
 	reloadScripts()
 end
 
-local function runAutoUpdate()
-	lua_thread.create(function()
-		local url = REMOTE_VERSION_URL .. '?t=' .. os.time()
-		local ok, response = pcall(requests.get, url)
-		if not (ok and response and response.status_code == 200 and response.text) then
-			return
-		end
-		local remote = tostring(response.text):match("([%d%.]+)")
-		if not remote then return end
-		if versionCompare(remote, SCRIPT_VERSION) > 0 then
-			sampAddChatMessage(tag .. 'Доступно обновление ' .. remote .. ' (текущая: ' .. SCRIPT_VERSION .. '). Начинаем автообновление!', -1)
-			updateDownloadAll()
-		else
-			sampAddChatMessage(tag .. 'Установлена актуальная версия: ' .. SCRIPT_VERSION, -1)
-		
-		end
-	end)
+local function ensureAllFiles()
+    local missing = {}
+    for key, path in pairs(update_paths) do
+        if not doesFileExist(path) and update_urls[key] then
+            table.insert(missing, {key = key, url = update_urls[key], path = path})
+        end
+    end
+    if #missing == 0 then return true end
+
+    sampAddChatMessage(tag .. 'Докачиваю недостающие файлы: ' .. #missing, -1)
+    local pending = #missing
+    for _, f in ipairs(missing) do
+        downloadUrlToFile(f.url, f.path, function(id, status)
+            if status == dlstatus.STATUS_ENDDOWNLOADDATA then
+                pending = pending - 1
+            elseif status == dlstatus.STATUS_ENDDOWNLOADDATA_ERR then
+                pending = pending - 1
+            end
+        end)
+    end
+
+    local timeout = os.clock() + 30
+    while pending > 0 and os.clock() < timeout do
+        wait(100)
+    end
+    return pending == 0
+end
+
+function runAutoUpdate()
+    lua_thread.create(function()
+        if update_in_progress then return end
+        update_in_progress = true
+
+        ensureAllFiles()
+
+        local ok, response = pcall(requests.get, REMOTE_VERSION_URL)
+        if ok and response and response.status_code == 200 then
+            local remote = response.text:match("([%d%.]+)")
+            if remote and versionCompare(remote, SCRIPT_VERSION) > 0 then
+                sampAddChatMessage(tag .. 'Новая версия: ' .. remote, -1)
+                updateDownloadAll()
+            end
+        end
+        update_in_progress = false
+    end)
 end
 -- ================================================================
 
