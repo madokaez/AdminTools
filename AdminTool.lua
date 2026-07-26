@@ -38,7 +38,7 @@ local update_urls = {
 	['chip']       = 'https://raw.githubusercontent.com/madokaez/AdminTools/main/chip.luac',
 	['commands']   = 'https://raw.githubusercontent.com/madokaez/AdminTools/main/commands.lua',
 	['renders']    = 'https://raw.githubusercontent.com/madokaez/AdminTools/main/renders.lua',
-	['renders']    = 'https://raw.githubusercontent.com/madokaez/AdminTools/main/test.lua',
+	['test']    = 'https://raw.githubusercontent.com/madokaez/AdminTools/main/test.lua',
 }
 
 local update_paths = {
@@ -49,7 +49,7 @@ local update_paths = {
 	['chip']       = getWorkingDirectory() .. '/resource/chip.luac',
 	['commands']   = getWorkingDirectory() .. '/resource/commands.lua',
 	['renders']    = getWorkingDirectory() .. '/resource/renders.lua',
-	['renders']    = getWorkingDirectory() .. '/resource/test.lua',
+	['test']    = getWorkingDirectory() .. '/resource/test.lua',
 }
 
 local update_in_progress = false
