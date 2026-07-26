@@ -19,6 +19,10 @@ encoding.default = 'CP1251' -- смена кодировки на CP1251
 u8 = encoding.UTF8 -- переименовка стандтартного режима кодировки UTF8 - u8
 -- ## Блок текстовых переменных ## --
 
+local dlstatus = require('moonloader').download_status
+
+
+
 -- ## Блок переменных связанных с конфигами и элементами взаимодействия с параметрами конфига ## --
 local ATMainDirect = "AdminTools\\settings.ini"
 local ATMainConfig = inicfg.load({
@@ -73,6 +77,48 @@ local elements = {
     },
 }
 -- ## Блок переменных связанных с конфигами и элементами взаимодействия с параметрами конфига ## --
+
+
+local READY_EVENTS_URL  = 'https://raw.githubusercontent.com/madokaez/AdminTools/main/config/evbinder.ini'
+local READY_EVENTS_PATH = getWorkingDirectory() .. '/config/AdminTools/evbinder.ini'
+
+function InstallReadyEvents()
+	lua_thread.create(function()
+		sampAddChatMessage(tag .. 'Загружаю готовые мероприятия...', -1)
+		local done = false
+		downloadUrlToFile(READY_EVENTS_URL, READY_EVENTS_PATH, function(id, status)
+			if status == dlstatus.STATUS_ENDDOWNLOADDATA
+			or status == dlstatus.STATUS_ENDDOWNLOADDATA_ERR then
+				done = true
+			end
+		end)
+		local waited = 0
+		while not done and waited < 30000 do wait(200); waited = waited + 200 end
+
+		local fresh = inicfg.load({
+			bind_name = {}, bind_text = {}, bind_delay = {}, bind_vdt = {}, bind_coords = {}
+		}, BinderMP)
+
+		if not fresh or not fresh.bind_name then
+			sampAddChatMessage(tag .. 'Ошибка чтения файла мероприятий', -1)
+			return
+		end
+
+		local function clear(t) for k in pairs(t) do t[k] = nil end end
+		clear(BinderMPcfg.bind_name)
+		clear(BinderMPcfg.bind_text)
+		clear(BinderMPcfg.bind_delay)
+		clear(BinderMPcfg.bind_vdt)
+		clear(BinderMPcfg.bind_coords)
+		for k, v in pairs(fresh.bind_name)   do BinderMPcfg.bind_name[k]   = v end
+		for k, v in pairs(fresh.bind_text)   do BinderMPcfg.bind_text[k]   = v end
+		for k, v in pairs(fresh.bind_delay)  do BinderMPcfg.bind_delay[k]  = v end
+		for k, v in pairs(fresh.bind_vdt)    do BinderMPcfg.bind_vdt[k]    = v end
+		for k, v in pairs(fresh.bind_coords) do BinderMPcfg.bind_coords[k] = v end
+
+		sampAddChatMessage(tag .. ('Готовые мероприятия установлены (%d шт.).'):format(#BinderMPcfg.bind_name), -1)
+	end)
+end
 
 -- ## Блок переменных связанных с MoonImGUI ## --
 
@@ -309,7 +355,10 @@ function imgui.OnDrawFrame()
                 EditOldBind = false
                 imgui.OpenPopup('EventsBinder')
             end
-
+			imgui.SameLine()
+			if imgui.Button(u8"Установить готовые") then
+				InstallReadyEvents()
+			end
 			if #BinderMPcfg.bind_name > 0 then  
 				for key_bind, name_bind in pairs(BinderMPcfg.bind_name) do  
 					if imgui.Button(name_bind .. '##' .. key_bind) then  
