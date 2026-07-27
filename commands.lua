@@ -88,14 +88,14 @@ cmd_massive = {
 	
 	
 	
-	["bps"] = {
+	["bsd"] = {
 	cmd = "/iban",
-	reason = "писс",
+	reason = "слив данных",
 	time = 7,
 	},
-	["obps"] = {
+	["obsd"] = {
 	cmd = "/ioffban",
-	reason = "писс",
+	reason = "слив данных",
 	time = 7,
 	},
 	
@@ -615,6 +615,32 @@ cmd_massive = {
 	reason = "розжиг",
 	time = 5000,
 	},
+
+	
+	
+	
+	["msd"] = {
+	cmd = "/mute",
+	reason = "слив данных",
+	time = 5000,
+	},
+	["omsd"] = {
+	cmd = "/muteakk",
+	reason = "слив данных",
+	time = 5000,
+	},
+	
+	["rsd"] = {
+	cmd = "/rmute",
+	reason = "слив данных",
+	time = 5000,
+	},
+	["orsd"] = {
+	cmd = "/rmuteakk",
+	reason = "слив данных",
+	time = 5000,
+	},	
+	
 	
 	
 	
@@ -748,19 +774,6 @@ cmd_massive = {
 	
 	
 	
-	["jps"] = {
-	cmd = "/jail",
-	reason = "писс",
-	time = 900,
-	},
-	["ojps"] = {
-	cmd = "/jailakk",
-	reason = "писс",
-	time = 900,
-	},
-	
-	
-	
 	["sm"] = {
 	cmd = "/jail",
 	reason = "срыв мп",
@@ -846,9 +859,9 @@ cmd_massive = {
 	
 	
 	
-	["bpsr"] = {
+	["bsdr"] = {
 	cmd = "/iban",
-	reason = "писс ранее",
+	reason = "слив данных ранее",
 	time = 7,
 	},
 	
@@ -1077,6 +1090,14 @@ cmd_massive = {
 	
 	
 	
+	["msdr"] = {
+	cmd = "/mute",
+	reason = "слив данных ранее",
+	time = 5000,
+	},
+	
+	
+	
 	["prvr"] = {
 	cmd = "/mute",
 	reason = "провокация ранее",
@@ -1127,14 +1148,6 @@ cmd_massive = {
 	["dbkr"] = {
 	cmd = "/jail",
 	reason = "дб зз ковш ранее",
-	time = 900,
-	},
-	
-	
-	
-	["jpsr"] = {
-	cmd = "/jail",
-	reason = "писс ранее",
 	time = 900,
 	},
 	
@@ -1227,14 +1240,14 @@ cmd_massive = {
 	
 	
 	
-	["bpsf"] = {
+	["bsdf"] = {
 	cmd = "/iban",
-	reason = "писс(forum)",
+	reason = "слив данных(forum)",
 	time = 7,
 	},
-	["obpsf"] = {
+	["obsdf"] = {
 	cmd = "/ioffban",
-	reason = "писс(forum)",
+	reason = "слив данных(forum)",
 	time = 7,
 	},	
 	
@@ -1464,6 +1477,16 @@ cmd_massive = {
 	reason = "розжиг(forum)",
 	time = 5000,
 	},
+	["msdf"] = {
+	cmd = "/mute",
+	reason = "слив данных(forum)",
+	time = 5000,
+	},
+	["omsdf"] = {
+	cmd = "/muteakk",
+	reason = "слив данных(forum)",
+	time = 5000,
+	},
 	["prvf"] = {
 	cmd = "/mute",
 	reason = "провокация(forum)",
@@ -1535,16 +1558,6 @@ cmd_massive = {
 	["odbkf"] = {
 	cmd = "/jailakk",
 	reason = "дб зз ковш(forum)",
-	time = 900,
-	},
-	["jpsf"] = {
-	cmd = "/jail",
-	reason = "писс(forum)",
-	time = 900,
-	},
-	["ojpsf"] = {
-	cmd = "/jailakk",
-	reason = "писс(forum)",
 	time = 900,
 	},
 	["zvf"] = {
@@ -1708,7 +1721,7 @@ CMDBAN =
 "/otp [ID] - отказ от проверки \n/ootp [NICK] - отказ от проверки (оффлайн) \n/otpf [ID] - отказ от проверки (forum) \n/ootpf [NICK] - отказ от проверки (forum) (оффлайн) \n \n" ..
 "/osn [ID] - отказ смены ника \n/oosn [NICK] - отказ смены ника (оффлайн) \n \n" ..
 "/osnp [ID] - отказ смены ника (плагиат) \n/oosnp [NICK] - отказ смены ника (плагиат) (оффлайн) \n \n" ..
-"/bps [ID] - писс \n/obps [NICK] - писс (оффлайн) \n/bpsf [ID] - писс (forum) \n/obpsf [NICK] - писс (forum) (оффлайн) \n/bpsr [ID] - писс ранее \n \n" ..
+"/bsd [ID] - слив данных \n/obsd [NICK] - слив данных (оффлайн) \n/bsdf [ID] - слив данных (forum) \n/obsdf [NICK] - слив данных (forum) (оффлайн) \n/bsdr [ID] - слив данных ранее \n \n" ..
 "/dvs [ID] - до выяснений \n/odvs [NICK] - до выяснений (оффлайн) \n \n" ..
 "/obm [ID] - обман \n/oobm [NICK] - обман (оффлайн) \n/obmf [ID] - обман (forum) \n/oobmf [NICK] - обман (forum) (оффлайн) \n/obmr [ID] - обман ранее \n \n" ..
 "/brk [ID] - реклама \n/obrk [NICK] - реклама (оффлайн) \n/brkf [ID] - реклама (forum) \n/obrkf [NICK] - реклама (forum) (оффлайн) \n/brkr [ID] - реклама ранее \n \n" ..
@@ -1730,7 +1743,6 @@ CMDJAIL =
 "/npgw [ID] - нарушение правил гв \n/onpgw [NICK] - нарушение правил гв (оффлайн) \n/npgwf [ID] - нарушение правил гв (forum) \n/onpgwf [NICK] - нарушение правил гв (forum) (оффлайн) \n/npgwr [ID] - нарушение правил гв ранее \n \n" ..
 "/jch [ID] - чит 900 \n/ojch [NICK] - чит 900 (оффлайн) \n/jchf [ID] - чит 900 (forum) \n/ojchf [NICK] - чит 900 (forum) (оффлайн) \n/jchr [ID] - чит 900 ранее \n \n" ..
 "/dbk [ID] - дб зз ковш \n/odbk [NICK] - дб зз ковш (оффлайн) \n/dbkf [ID] - дб зз ковш (forum) \n/odbkf [NICK] - дб зз ковш (forum) (оффлайн) \n/dbkr [ID] - дб зз ковш ранее \n \n" ..
-"/jps [ID] - писс \n/ojps [NICK] - писс (оффлайн) \n/jpsf [ID] - писс (forum) \n/ojpsf [NICK] - писс (forum) (оффлайн) \n/jpsr [ID] - писс ранее \n \n" ..
 "/js [ID] - сбив \n/ojs [NICK] - сбив (оффлайн) \n/jsf [ID] - сбив (forum) \n/ojsf [NICK] - сбив (forum) (оффлайн) \n/jsr [ID] - сбив ранее \n \n" ..
 "/sm [ID] - срыв мп \n/osm [NICK] - срыв мп (оффлайн) \n \n" ..
 "/jch3 [ID] - чит 3000 \n/ojch3 [NICK] - чит 3000 (оффлайн) \n/jchr3 [ID] - чит 3000 ранее \n \n" ..
@@ -1752,6 +1764,7 @@ CMDMUTE =
 "/di [ID] - дезинфа \n/odi [NICK] - дезинфа (оффлайн) \n/rdi [ID] - дезинфа (репорт) \n/ordi [NICK] - дезинфа (оффлайн) (репорт) \n/dir [ID] - дезинфа ранее \n \n" ..
 "/or [ID] - оск/упом род \n/oor [NICK] - оск/упом род (оффлайн) \n/ror [ID] - оск/упом род (репорт) \n/oror [NICK] - оск/упом род (оффлайн) (репорт) \n/orf [ID] - оск/упом род (forum) \n/oorf [NICK] - оск/упом род (forum) (оффлайн) \n/orr [ID] - оск/упом род ранее \n \n" ..
 "/rz [ID] - розжиг \n/orz [NICK] - розжиг (оффлайн) \n/rrz [ID] - розжиг (репорт) \n/orrz [NICK] - розжиг (оффлайн) (репорт) \n/rzf [ID] - розжиг (forum) \n/orzf [NICK] - розжиг (forum) (оффлайн) \n/rzr [ID] - розжиг ранее \n \n" ..
+"/msd [ID] - слив данных \n/omsd [NICK] - слив данных (оффлайн) \n/rsd [ID] - слив данных (репорт) \n/orsd [NICK] - слив данных (оффлайн) (репорт) \n/msdf [ID] - слив данных (forum) \n/omsdf [NICK] - слив данных (forum) (оффлайн) \n/msdr [ID] - слив данных ранее \n \n" ..
 "/prv [ID] - провокация \n/oprv [NICK] - провокация (оффлайн) \n/rprv [ID] - провокация (репорт) \n/orprv [NICK] - провокация (оффлайн) (репорт) \n/prvf [ID] - провокация (forum) \n/oprvf [NICK] - провокация (forum) (оффлайн) \n/prvr [ID] - провокация ранее \n \n"
 CMDKICK = 
 "/dj [ID] - дм джайл \n/sn [ID] - смените ник \n/snp [ID] - смените ник(плагиат) \n/aa [ID] - АФК арена \n/pb [ID] - помеха /barrage"
