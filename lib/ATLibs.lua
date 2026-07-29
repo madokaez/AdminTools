@@ -446,9 +446,9 @@ function functions.black()
 	colors[clr.SeparatorActive]     = ImVec4(0.50, 0.50, 0.50, 1)
 	
 	-- Ресайз — акцентный синий (единственный цветной элемент)
-	colors[clr.ResizeGrip]          = ImVec4(0.067, 0.149, 0.259, 1)
-	colors[clr.ResizeGripHovered]   = ImVec4(0.173, 0.396, 0.663, 1)
-	colors[clr.ResizeGripActive]    = ImVec4(0.247, 0.557, 0.933, 1)
+	colors[clr.ResizeGrip]          = ImVec4(0.52, 0.52, 0.52, 1)
+	colors[clr.ResizeGripHovered]   = ImVec4(0.65, 0.65, 0.65, 1)
+	colors[clr.ResizeGripActive]    = ImVec4(0.65, 0.65, 0.65, 1)
 	
 	-- Кнопка закрытия
 	colors[clr.CloseButton]         = ImVec4(0.20, 0.20, 0.20, 1)
