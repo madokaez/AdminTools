@@ -7,7 +7,7 @@ local sampev = require "lib.samp.events"
 local atlibs = require 'ATLibs'
 local encoding = require 'encoding'
 local fai = require "fAwesome5"
-local fa = require 'faicons'4
+local fa = require 'faicons'
 
 -- ## Хелперы для конвертации цвета (HEX <-> RGBA) ## --
 local function hex_to_rgba(hex_str)
