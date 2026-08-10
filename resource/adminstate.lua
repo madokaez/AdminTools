@@ -484,7 +484,7 @@ function EXPORTS.AdminStateMenu()
 		if imgui.Button(u8'Изменение позиции',imgui.ImVec2(500, 25)) then 
 			varstate.changePosition = true 
 			imgui.CloseCurrentPopup()
-			sampAddChatMessage(tag .. ' Для сохранения позиции, нажмите кнопку <1> на клавиатуре.')
+			sampAddChatMessage(tag .. '(1) - сохранить позицию', -1)
 		end
 		if imgui.Checkbox(u8'Прозрачное окно', elements.admin_state.show_transparency) then  
 			config.adminstate.show_transparency = elements.admin_state.show_transparency.v  
