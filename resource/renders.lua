@@ -21,12 +21,12 @@ local config = inicfg.load({
         dchat = false, pmchat = false, reportchat = false,
         warningchat = false, lquit = false, achat = false,
     },
-    dchat       = { X=0, Y=0, lines=10, Font=10 },
-    pmchat      = { X=0, Y=0, lines=10, Font=10 },
-    reportchat  = { X=0, Y=0, lines=10, Font=10 },
-    warningchat = { X=0, Y=0, lines=10, Font=10 },
-    lquit       = { X=0, Y=0, lines=10, Font=10 },
-    achat       = { X=50, Y=300, lines=10, Font=10, centered=0, nickside=1 },
+    dchat       = { X=0,  Y=0,   lines=5, Font=11, centered=0 },
+    pmchat      = { X=0,  Y=0,   lines=5, Font=11, centered=0 },
+    reportchat  = { X=0,  Y=0,   lines=5, Font=11, centered=0 },
+    warningchat = { X=0,  Y=0,   lines=5, Font=11, centered=0 },
+    lquit       = { X=0,  Y=0,   lines=5, Font=11, centered=0 },
+    achat       = { X=50, Y=300, lines=5, Font=11, centered=0 },
 }, directIni) or {}
 
 if not config.settings then config.settings = {} end
@@ -40,7 +40,6 @@ local fonts = {}
 local function createFont(size)
     return renderCreateFont("Arial", size, fflags.BOLD + fflags.SHADOW)
 end
-
 
 function imgui.SettingsButton()
     imgui.SameLine()
@@ -67,7 +66,7 @@ local function updateAllFonts()
 end
 
 -- ========================================================================
--- конфиг
+-- Элементы
 -- ========================================================================
 local elements = {
     boolean = {
@@ -79,44 +78,61 @@ local elements = {
         achat       = imgui.ImBool(config.settings.achat       or false),
     },
     dchat = {
-        chat_lines = {}, X = config.dchat.X       or 0, Y = config.dchat.Y       or 0,
-        lines = imgui.ImInt(config.dchat.lines or 10),
-        Font  = imgui.ImInt(config.dchat.Font  or 10),
+        chat_lines = {}, X = config.dchat.X or 0, Y = config.dchat.Y or 0,
+        lines    = imgui.ImInt(config.dchat.lines    or 10),
+        Font     = imgui.ImInt(config.dchat.Font     or 10),
+        centered = imgui.ImInt(config.dchat.centered or 0),
+        pos      = false,
     },
     pmchat = {
-        chat_lines = {}, X = config.pmchat.X      or 0, Y = config.pmchat.Y      or 0,
-        lines = imgui.ImInt(config.pmchat.lines or 10),
-        Font  = imgui.ImInt(config.pmchat.Font  or 10),
+        chat_lines = {}, X = config.pmchat.X or 0, Y = config.pmchat.Y or 0,
+        lines    = imgui.ImInt(config.pmchat.lines    or 10),
+        Font     = imgui.ImInt(config.pmchat.Font     or 10),
+        centered = imgui.ImInt(config.pmchat.centered or 0),
+        pos      = false,
     },
     reportchat = {
-        chat_lines = {}, X = config.reportchat.X  or 0, Y = config.reportchat.Y  or 0,
-        lines = imgui.ImInt(config.reportchat.lines or 10),
-        Font  = imgui.ImInt(config.reportchat.Font or 10),
+        chat_lines = {}, X = config.reportchat.X or 0, Y = config.reportchat.Y or 0,
+        lines    = imgui.ImInt(config.reportchat.lines    or 10),
+        Font     = imgui.ImInt(config.reportchat.Font     or 10),
+        centered = imgui.ImInt(config.reportchat.centered or 0),
+        pos      = false,
     },
     warningchat = {
         chat_lines = {}, X = config.warningchat.X or 0, Y = config.warningchat.Y or 0,
-        lines = imgui.ImInt(config.warningchat.lines or 10),
-        Font  = imgui.ImInt(config.warningchat.Font or 10),
+        lines    = imgui.ImInt(config.warningchat.lines    or 10),
+        Font     = imgui.ImInt(config.warningchat.Font     or 10),
+        centered = imgui.ImInt(config.warningchat.centered or 0),
+        pos      = false,
     },
     lquit = {
-        chat_lines = {}, X = config.lquit.X       or 0, Y = config.lquit.Y       or 0,
-        lines = imgui.ImInt(config.lquit.lines or 10),
-        Font  = imgui.ImInt(config.lquit.Font  or 10),
+        chat_lines = {}, X = config.lquit.X or 0, Y = config.lquit.Y or 0,
+        lines    = imgui.ImInt(config.lquit.lines    or 10),
+        Font     = imgui.ImInt(config.lquit.Font     or 10),
+        centered = imgui.ImInt(config.lquit.centered or 0),
+        pos      = false,
     },
     achat = {
         chat_lines = {},
         X = config.achat.X or 50,
         Y = config.achat.Y or 300,
-        lines    = imgui.ImInt(config.achat.lines or 10),
-        Font     = imgui.ImInt(config.achat.Font  or 10),
+        lines    = imgui.ImInt(config.achat.lines    or 10),
+        Font     = imgui.ImInt(config.achat.Font     or 10),
         centered = imgui.ImInt(config.achat.centered or 0),
-        nickside = imgui.ImInt(config.achat.nickside or 1),
         pos      = false,
     }
 }
 
 local no_saved = { X=0, Y=0 }
 local quitReason = { "вылетел / краш", "вышел из игры", "кикнут / забанен" }
+
+-- ========================================================================
+-- Утилиты
+-- ========================================================================
+local function getTimeStr()
+    local d = os.date("*t")
+    return string.format("%02d:%02d:%02d", d.hour, d.min, d.sec)
+end
 
 -- ========================================================================
 -- Сохранение / загрузка
@@ -129,13 +145,15 @@ local function save()
     config.settings.lquit       = elements.boolean.lquit.v
     config.settings.achat       = elements.boolean.achat.v
 
-    config.dchat       = { X=elements.dchat.X,       Y=elements.dchat.Y,       lines=elements.dchat.lines.v,       Font=elements.dchat.Font.v       }
-    config.pmchat      = { X=elements.pmchat.X,      Y=elements.pmchat.Y,      lines=elements.pmchat.lines.v,      Font=elements.pmchat.Font.v      }
-    config.reportchat  = { X=elements.reportchat.X,  Y=elements.reportchat.Y,  lines=elements.reportchat.lines.v,  Font=elements.reportchat.Font.v  }
-    config.warningchat = { X=elements.warningchat.X, Y=elements.warningchat.Y, lines=elements.warningchat.lines.v, Font=elements.warningchat.Font.v }
-    config.lquit       = { X=elements.lquit.X,       Y=elements.lquit.Y,       lines=elements.lquit.lines.v,       Font=elements.lquit.Font.v       }
-    config.achat       = { X=elements.achat.X,       Y=elements.achat.Y,       lines=elements.achat.lines.v,       Font=elements.achat.Font.v,
-                                 centered=elements.achat.centered.v, nickside=elements.achat.nickside.v }
+    for _, k in ipairs({"dchat","pmchat","reportchat","warningchat","lquit","achat"}) do
+        local s = elements[k]
+        config[k] = {
+            X = s.X, Y = s.Y,
+            lines    = s.lines.v,
+            Font     = s.Font.v,
+            centered = s.centered.v,
+        }
+    end
 
     inicfg.save(config, directIni)
 end
@@ -146,12 +164,10 @@ local function loadAll()
         local cfg = config[k] or {}
         sec.X = cfg.X or sec.X
         sec.Y = cfg.Y or sec.Y
-        sec.lines.v   = cfg.lines   or sec.lines.v
-        sec.Font.v    = cfg.Font    or sec.Font.v
+        sec.lines.v    = cfg.lines    or sec.lines.v
+        sec.Font.v     = cfg.Font     or sec.Font.v
+        sec.centered.v = cfg.centered or sec.centered.v
     end
-
-    elements.achat.centered.v = config.achat.centered or 0
-    elements.achat.nickside.v = config.achat.nickside or 1
 end
 
 -- ========================================================================
@@ -168,16 +184,26 @@ end
 
 -- ========================================================================
 -- Рендер
+-- centered: 0 = слева, 1 = по центру, 2 = справа
 -- ========================================================================
-local function drawChatBlock(font, lines_table, x, y, count, active)
+local function drawChatBlock(font, lines_table, x, y, count, active, centered)
     if not active or not font then return end
-
+    centered = centered or 0
     local lineHeight = (renderGetFontDrawHeight(font) or 16) + 4
 
     for i = count, 1, -1 do
         local txt = lines_table[i] or ""
         local cy = y + lineHeight * (count - i)
-        renderFontDrawText(font, txt, x, cy, 0xFF9999FF)
+        local cx = x
+        if centered == 1 or centered == 2 then
+            local textLen = renderGetFontDrawTextLength(font, txt) or 0
+            if centered == 1 then
+                cx = x - textLen / 2
+            elseif centered == 2 then
+                cx = x - textLen
+            end
+        end
+        renderFontDrawText(font, txt, cx, cy, 0xFF9999FF)
     end
 end
 
@@ -207,13 +233,41 @@ local function drawAdminChat()
     end
 end
 
-local function addTestLine(chat_key, example_text)
+-- ========================================================================
+-- Тестовые строки
+-- ========================================================================
+local function buildTestLine(chat_key)
+    local time = getTimeStr()
+    if chat_key == "pmchat" then
+        return "{FFFFFF}[" .. time .. "] {d1ac5c}/pm:{FFFFFF} Привет, тест | David(123) -> Kirill(321)"
+    elseif chat_key == "dchat" then
+        return "{FFFFFF}[" .. time .. "] {8c8c8c}/d:{FFFFFF} Всем привет | David(123)"
+    elseif chat_key == "reportchat" then
+        return "Жалоба #1 | {AFAFAF}David[123]: {FFFFFF}Читер на арене"
+    elseif chat_key == "warningchat" then
+        return "<AC-WARNING> {ffffff}David[123]{82b76b} подозревается в использовании чит-программ: {ffffff}SpeedHack (onfoot) [code: 009]"
+    elseif chat_key == "lquit" then
+        return "Tester[123] подключился"
+    elseif chat_key == "achat" then
+        return "Администратор • 15 • David[123]: {FFFFFF}Тестовое сообщение админ-чата"
+    end
+end
+
+local function addTestLine(chat_key)
+    local line = buildTestLine(chat_key)
+    if not line then return end
     local t = elements[chat_key].chat_lines
-    local time = os.date("%H:%M:%S")
-    local line = example_text:gsub("{TIME}", time)
     table.insert(t, 1, line)
     if #t > elements[chat_key].lines.v then
         table.remove(t)
+    end
+end
+
+-- Полностью заполнить конкретный рендер тестовыми строками.
+local function fillTestOne(chat_key)
+    elements[chat_key].chat_lines = {}
+    for _ = 1, elements[chat_key].lines.v do
+        addTestLine(chat_key)
     end
 end
 
@@ -221,33 +275,33 @@ end
 -- События
 -- ========================================================================
 function sampev.onServerMessage(color, text)
-    local time = os.date("%H:%M:%S")
+    local time = getTimeStr()
 
-	-- /pm
-	if text:find("%[A] SMS:") and elements.boolean.pmchat.v then
-		local body, sender, receiver = text:match("%[A] SMS: (.+) | отправил (.+) игроку (.+)")
-		local t = elements.pmchat.chat_lines
-		if body then
-			table.insert(t, 1, "{FFFFFF}["..time.."] {d1ac5c}/pm:{FFFFFF} "..body.." | "..sender.." -> "..receiver)
-		else
-			table.insert(t, 1, "{FFFFFF}["..time.."] {d1ac5c}/pm:{FFFFFF} "..(text:match("%[A] SMS: (.+)") or ""))
-		end
-		if #t > elements.pmchat.lines.v then table.remove(t) end
-		return false
-	end
-	
-	-- /d
-	if text:find("%[A] NEARBY CHAT:") and elements.boolean.dchat.v then
-		local body, sender = text:match("%[A] NEARBY CHAT: (.+) | отправил (.+)")
-		local t = elements.dchat.chat_lines
-		if body then
-			table.insert(t, 1, "{FFFFFF}["..time.."] {8c8c8c}/d:{FFFFFF} "..body.." | "..sender)
-		else
-			table.insert(t, 1, "{FFFFFF}["..time.."] {8c8c8c}/d:{FFFFFF} "..(text:match("%[A] NEARBY CHAT: (.+)") or ""))
-		end
-		if #t > elements.dchat.lines.v then table.remove(t) end
-		return false
-	end
+    -- /pm
+    if text:find("%[A] SMS:") and elements.boolean.pmchat.v then
+        local body, sender, receiver = text:match("%[A] SMS: (.+) | отправил (.+) игроку (.+)")
+        local t = elements.pmchat.chat_lines
+        if body then
+            table.insert(t, 1, "{FFFFFF}[" .. time .. "] {d1ac5c}/pm:{FFFFFF} " .. body .. " | " .. sender .. " -> " .. receiver)
+        else
+            table.insert(t, 1, "{FFFFFF}[" .. time .. "] {d1ac5c}/pm:{FFFFFF} " .. (text:match("%[A] SMS: (.+)") or ""))
+        end
+        if #t > elements.pmchat.lines.v then table.remove(t) end
+        return false
+    end
+
+    -- /d
+    if text:find("%[A] NEARBY CHAT:") and elements.boolean.dchat.v then
+        local body, sender = text:match("%[A] NEARBY CHAT: (.+) | отправил (.+)")
+        local t = elements.dchat.chat_lines
+        if body then
+            table.insert(t, 1, "{FFFFFF}[" .. time .. "] {8c8c8c}/d:{FFFFFF} " .. body .. " | " .. sender)
+        else
+            table.insert(t, 1, "{FFFFFF}[" .. time .. "] {8c8c8c}/d:{FFFFFF} " .. (text:match("%[A] NEARBY CHAT: (.+)") or ""))
+        end
+        if #t > elements.dchat.lines.v then table.remove(t) end
+        return false
+    end
 
     -- /report
     if text:find("Жалоба .+ | {AFAFAF}.+%[%d+%]:") and elements.boolean.reportchat.v then
@@ -267,6 +321,22 @@ function sampev.onServerMessage(color, text)
 
     -- Admin Chat
     if elements.boolean.achat.v then
+        -- полный паттерн детекта админ-форм из AdminTool.lua
+        local form_reasons = {"/jail","/jailakk","/ban","/iban","/sban","/siban","/offban","/ioffban","/iunban"}
+        local _, _, _, lc_nick, _, lc_text =
+            text:match("%[A%-(%d+)%] %((.+){(.+)}%) (.+)%[(%d+)%]: {FFFFFF}(.+)")
+        if lc_text ~= nil then
+            for _, v in ipairs(form_reasons) do
+                if lc_text:match(v) ~= nil then
+                    if lc_text:find("/(.+) (%d+) (%d+) (.+)")
+                       or lc_text:find("/(.+) (.+) (%d+) (.+)")
+                       or lc_text:find("/iunban (.+)") then
+                        return -- админ-форма — отдаём событие в AdminTool
+                    end
+                end
+            end
+        end
+
         local lvl, adm, clr, nick, id, msg = text:match("%[A%-(%d+)%] %(([^%s]+){([^}]+)}%) (.+)%[(%d+)%]: {FFFFFF}(.+)")
         if not lvl then
             lvl, nick, id, msg = text:match("%[A%-(%d+)%]([^%[]+)%[(%d+)%]: {FFFFFF}(.+)")
@@ -275,18 +345,10 @@ function sampev.onServerMessage(color, text)
         if lvl then
             local colorhex = clr or bit.tohex(color):sub(3,8)
             local line
-            if elements.achat.nickside.v == 1 then
-                if adm then
-                    line = adm.."{"..colorhex.."} • "..lvl.." • "..nick.."["..id.."] : {FFFFFF}"..msg
-                else
-                    line = lvl.." • "..nick.."["..id.."] : {FFFFFF}"..msg
-                end
+            if adm then
+                line = adm .. "{" .. colorhex .. "} • " .. lvl .. " • " .. nick .. "[" .. id .. "] : {FFFFFF}" .. msg
             else
-                if adm then
-                    line = "{FFFFFF}"..msg.." {"..colorhex.."} : "..nick.."["..id.."] • "..lvl.." • "..adm
-                else
-                    line = "{FFFFFF}"..msg.." : "..nick.."["..id.."] • "..lvl
-                end
+                line = lvl .. " • " .. nick .. "[" .. id .. "] : {FFFFFF}" .. msg
             end
 
             local t = elements.achat.chat_lines
@@ -301,7 +363,7 @@ end
 function sampev.onPlayerJoin(id, color, isNpc, nickname)
     if not elements.boolean.lquit.v then return end
     local t = elements.lquit.chat_lines
-    table.insert(t, 1, string.format("%s[%d] {00FF00}подключился", nickname, id))
+    table.insert(t, 1, string.format("%s[%d] подключился", nickname, id))
     if #t > elements.lquit.lines.v then table.remove(t) end
 end
 
@@ -366,40 +428,18 @@ function EXPORTS.ActiveChatRenders()
             end
             imgui.PopItemWidth()
 
-            if key == "achat" then
-                local ac = elements.achat
-
-                local prevCentered = ac.centered.v
-                imgui.Combo(u8"Выравнивание##centered", ac.centered,
-                    {u8"Слева", u8"По центру", u8"Справа"})
-                if ac.centered.v ~= prevCentered then
-                    save()
-                end
-
-                local prevNickside = ac.nickside.v
-                imgui.Combo(u8"Расположение ника##nickside", ac.nickside,
-                    {u8"Слева от текста", u8"Справа от текста"})
-                if ac.nickside.v ~= prevNickside then
-                    save()
-                end
+            -- Выравнивание для всех рендеров
+            local prevCentered = sec.centered.v
+            imgui.Combo(u8"Выравнивание##centered_"..key, sec.centered,
+                {u8"Слева", u8"По центру", u8"Справа"})
+            if sec.centered.v ~= prevCentered then
+                save()
             end
 
             imgui.Separator()
 
             if imgui.Button(u8"Тест##test_"..key) then
-                if key == "pmchat" then
-                    addTestLine("pmchat", "{FFFFFF}[{TIME}] {d1ac5c}/pm:{FFFFFF} Привет, тест | David(123) -> Kirill(321)")
-                elseif key == "dchat" then
-                    addTestLine("dchat", "{FFFFFF}[{TIME}] {8c8c8c}/d:{FFFFFF} Всем привет | David(123)")
-                elseif key == "reportchat" then
-                    addTestLine("reportchat", "Жалоба #1 | {AFAFAF}David[123]: {FFFFFF}Читер на арене")
-                elseif key == "warningchat" then
-                    addTestLine("warningchat", "<AC-WARNING> {ffffff}David[123]{82b76b} подозревается в использовании чит-программ: {ffffff}SpeedHack (onfoot) [code: 009]")
-                elseif key == "lquit" then
-                    addTestLine("lquit", "Tester[123] {00FF00}подключился")
-                elseif key == "achat" then
-                    addTestLine("achat", "Администратор • 15 • David[123]: {FFFFFF}Тестовое сообщение админ-чата")
-                end
+                fillTestOne(key)
             end
             imgui.SameLine()
             if imgui.Button(u8"Очистить##clear_"..key) then
@@ -409,7 +449,7 @@ function EXPORTS.ActiveChatRenders()
             if imgui.Button(u8"Позиция##pos_"..key) then
                 no_saved.X, no_saved.Y = sec.X, sec.Y
                 sec.pos = true
-                sampAddChatMessage(tag .. "Для сохранения позиции, нажмите кнопку <1> на клавиатуре.", -1)
+                sampAddChatMessage(tag .. "(1) - сохранить позицию", -1)
                 imgui.CloseCurrentPopup()
             end
             imgui.EndPopup()
@@ -427,30 +467,45 @@ function main()
     updateAllFonts()
     loadAll()
 
-	while true do
-		wait(0)
-	
-		drawChatBlock(fonts.dchat,       elements.dchat.chat_lines,       elements.dchat.X,       elements.dchat.Y,       elements.dchat.lines.v,       elements.boolean.dchat.v)
-		drawChatBlock(fonts.pmchat,      elements.pmchat.chat_lines,      elements.pmchat.X,      elements.pmchat.Y,      elements.pmchat.lines.v,      elements.boolean.pmchat.v)
-		drawChatBlock(fonts.reportchat,  elements.reportchat.chat_lines,  elements.reportchat.X,  elements.reportchat.Y,  elements.reportchat.lines.v,  elements.boolean.reportchat.v)
-		drawChatBlock(fonts.warningchat, elements.warningchat.chat_lines, elements.warningchat.X, elements.warningchat.Y, elements.warningchat.lines.v, elements.boolean.warningchat.v)
-		drawChatBlock(fonts.lquit,       elements.lquit.chat_lines,       elements.lquit.X,       elements.lquit.Y,       elements.lquit.lines.v,       elements.boolean.lquit.v)
-		drawAdminChat()
-	
-		local needCursor = elements.dchat.pos or elements.pmchat.pos
-						or elements.reportchat.pos or elements.warningchat.pos
-						or elements.lquit.pos or elements.achat.pos
-	
-		imgui.Process    = needCursor
-		imgui.ShowCursor = needCursor
-	
-		if elements.dchat.pos       then changePosition(elements.dchat)       end
-		if elements.pmchat.pos      then changePosition(elements.pmchat)      end
-		if elements.reportchat.pos  then changePosition(elements.reportchat)  end
-		if elements.warningchat.pos then changePosition(elements.warningchat) end
-		if elements.lquit.pos       then changePosition(elements.lquit)       end
-		if elements.achat.pos       then changePosition(elements.achat)       end
-	end
+    while true do
+        wait(0)
+
+        drawChatBlock(fonts.dchat,       elements.dchat.chat_lines,
+            elements.dchat.X, elements.dchat.Y, elements.dchat.lines.v,
+            elements.boolean.dchat.v, elements.dchat.centered.v)
+
+        drawChatBlock(fonts.pmchat,      elements.pmchat.chat_lines,
+            elements.pmchat.X, elements.pmchat.Y, elements.pmchat.lines.v,
+            elements.boolean.pmchat.v, elements.pmchat.centered.v)
+
+        drawChatBlock(fonts.reportchat,  elements.reportchat.chat_lines,
+            elements.reportchat.X, elements.reportchat.Y, elements.reportchat.lines.v,
+            elements.boolean.reportchat.v, elements.reportchat.centered.v)
+
+        drawChatBlock(fonts.warningchat, elements.warningchat.chat_lines,
+            elements.warningchat.X, elements.warningchat.Y, elements.warningchat.lines.v,
+            elements.boolean.warningchat.v, elements.warningchat.centered.v)
+
+        drawChatBlock(fonts.lquit,       elements.lquit.chat_lines,
+            elements.lquit.X, elements.lquit.Y, elements.lquit.lines.v,
+            elements.boolean.lquit.v, elements.lquit.centered.v)
+
+        drawAdminChat()
+
+        local needCursor = elements.dchat.pos or elements.pmchat.pos
+                        or elements.reportchat.pos or elements.warningchat.pos
+                        or elements.lquit.pos or elements.achat.pos
+
+        imgui.Process    = needCursor
+        imgui.ShowCursor = needCursor
+
+        if elements.dchat.pos       then changePosition(elements.dchat)       end
+        if elements.pmchat.pos      then changePosition(elements.pmchat)      end
+        if elements.reportchat.pos  then changePosition(elements.reportchat)  end
+        if elements.warningchat.pos then changePosition(elements.warningchat) end
+        if elements.lquit.pos       then changePosition(elements.lquit)       end
+        if elements.achat.pos       then changePosition(elements.achat)       end
+    end
 end
 
 function EXPORTS.OffScript()
