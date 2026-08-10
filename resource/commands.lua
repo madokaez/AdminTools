@@ -1,5 +1,4 @@
--- ================================================================
-
+script_author('alfantasyz // modded: madoka')
 local encoding = require 'encoding'
 encoding.default = 'CP1251'
 local u8 = encoding.UTF8
@@ -65,6 +64,11 @@ cmd_massive = {
 	
 	
 	
+	["bsn"] = {
+	cmd = "/ban",
+	reason = "смените ник",
+	time = 7,
+	},	
 	["osn"] = {
 	cmd = "/iban",
 	reason = "отказ смены ника",
@@ -74,7 +78,13 @@ cmd_massive = {
 	cmd = "/ioffban",
 	reason = "отказ смены ника",
 	time = 7,
-	},
+	},	
+	
+	["bsnp"] = {
+	cmd = "/ban",
+	reason = "смените ник(плагиат)",
+	time = 7,
+	},	
 	["osnp"] = {
 	cmd = "/ban",
 	reason = "отказ смены ника (плагиат)",
@@ -988,12 +998,12 @@ cmd_massive = {
 	["upr"] = {
 	cmd = "/mute",
 	reason = "упом.стор.проектов ранее",
-	time = 1000,
+	time = 600,
 	},
 	-- ["rupr"] = {
 	-- cmd = "/rmute",
 	-- reason = "упом.стор.проектов ранее",
-	-- time = 1000,
+	-- time = 600,
 	-- },
 	
 	
@@ -1002,12 +1012,12 @@ cmd_massive = {
 	["mrkr"] = {
 	cmd = "/mute",
 	reason = "реклама ранее",
-	time = 1000,
+	time = 600,
 	},
 	-- ["rrkr"] = {
 	-- cmd = "/rmute",
 	-- reason = "реклама ранее",
-	-- time = 1000,
+	-- time = 600,
 	-- },	
 	
 	
@@ -1410,22 +1420,22 @@ cmd_massive = {
 	["mrkf"] = {
 	cmd = "/mute",
 	reason = "реклама(forum)",
-	time = 1000,
+	time = 600,
 	},
 	["omrkf"] = {
 	cmd = "/muteakk",
 	reason = "реклама(forum)",
-	time = 1000,
+	time = 600,
 	},
 	["upf"] = {
 	cmd = "/mute",
 	reason = "упом.стор.проектов(forum)",
-	time = 1000,
+	time = 600,
 	},
 	["oupf"] = {
 	cmd = "/muteakk",
 	reason = "упом.стор.проектов(forum)",
-	time = 1000,
+	time = 600,
 	},
 	["kaf"] = {
 	cmd = "/mute",
@@ -1719,8 +1729,8 @@ CMDBAN =
 "/ng [ID] - запрет.название банды \n/ong [NICK] - запрет.название банды (оффлайн) \n/ngf [ID] - запрет.название банды (forum) \n/ongf [NICK] - запрет.название банды (forum) (оффлайн) \n \n" ..
 "/bch [ID] - читы \n/obch [NICK] - читы (оффлайн) \n/bchf [ID] - читы (forum) \n/obchf [NICK] - читы (forum) (оффлайн) \n/bchr [ID] - читы ранее \n \n" ..
 "/otp [ID] - отказ от проверки \n/ootp [NICK] - отказ от проверки (оффлайн) \n/otpf [ID] - отказ от проверки (forum) \n/ootpf [NICK] - отказ от проверки (forum) (оффлайн) \n \n" ..
-"/osn [ID] - отказ смены ника \n/oosn [NICK] - отказ смены ника (оффлайн) \n \n" ..
-"/osnp [ID] - отказ смены ника (плагиат) \n/oosnp [NICK] - отказ смены ника (плагиат) (оффлайн) \n \n" ..
+"/bsn - смените ник \n/osn [ID] - отказ смены ника \n/oosn [NICK] - отказ смены ника (оффлайн) \n \n" ..
+"/bsnp - смените ник (плагиат) \n/osnp [ID] - отказ смены ника (плагиат) \n/oosnp [NICK] - отказ смены ника (плагиат) (оффлайн) \n \n" ..
 "/bsd [ID] - слив данных \n/obsd [NICK] - слив данных (оффлайн) \n/bsdf [ID] - слив данных (forum) \n/obsdf [NICK] - слив данных (forum) (оффлайн) \n/bsdr [ID] - слив данных ранее \n \n" ..
 "/dvs [ID] - до вы€снений \n/odvs [NICK] - до вы€снений (оффлайн) \n \n" ..
 "/obm [ID] - обман \n/oobm [NICK] - обман (оффлайн) \n/obmf [ID] - обман (forum) \n/oobmf [NICK] - обман (forum) (оффлайн) \n/obmr [ID] - обман ранее \n \n" ..

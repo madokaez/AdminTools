@@ -1,17 +1,35 @@
-script_description('Скрипт, записывающий статистику.')
-script_author('alfantasyz')
-
--- ## Регистрация библиотек, плагинов и аддонов ## --
+script_author('alfantasyz // modded: madoka')
 require 'lib.moonloader'
-local flags_font = require("moonloader").font_flag -- внедрение шрифта для рендерных функций
-local imgui = require('imgui') -- регистрация графического интерфейса ImGUI
-local inicfg = require 'inicfg' -- работа с ini
-local sampev = require "lib.samp.events" -- подключение основных библиотек, связанные с потокам пакетов ивентов SA:MP, и их прямое соединение с LUA
-local atlibs = require 'ATLibs' -- библиотека для работы с АТ
-local encoding = require 'encoding' -- работа с кодировками
-local fai = require "fAwesome5" -- работа с иконками Font Awesome 5
-local fa = require 'faicons' -- работа с иконками Font Awesome 4
--- ## Регистрация библиотек, плагинов и аддонов ## --
+local flags_font = require("moonloader").font_flag
+local imgui = require('imgui')
+local inicfg = require 'inicfg'
+local sampev = require "lib.samp.events"
+local atlibs = require 'ATLibs'
+local encoding = require 'encoding'
+local fai = require "fAwesome5"
+local fa = require 'faicons'4
+
+-- ## Хелперы для конвертации цвета (HEX <-> RGBA) ## --
+local function hex_to_rgba(hex_str)
+    local h = tostring(hex_str or ""):gsub("[{}#%s]", "")
+    if #h < 6 then h = "FFFFFF" end
+    local r = tonumber(h:sub(1,2), 16) or 255
+    local g = tonumber(h:sub(3,4), 16) or 255
+    local b = tonumber(h:sub(5,6), 16) or 255
+    return r/255, g/255, b/255, 1.0
+end
+
+local function _clamp01(x)
+    if x < 0 then return 0 elseif x > 1 then return 1 else return x end
+end
+
+local function rgba_to_hex_braced(v)
+    local r = math.floor(_clamp01(v[1]) * 255 + 0.5)
+    local g = math.floor(_clamp01(v[2]) * 255 + 0.5)
+    local b = math.floor(_clamp01(v[3]) * 255 + 0.5)
+    return string.format("{%02X%02X%02X}", r, g, b)
+end
+-- ## Хелперы для конвертации цвета (HEX <-> RGBA) ## --
 
 -- ## Блок текстовых переменных ## --
 local tag = "{7d00ff} [AdminTools] {FFFFFF}" -- тэг AT
@@ -103,6 +121,24 @@ local elements = {
         color_jail_now = imgui.ImBuffer(tostring(config.adminstate.color_jail_now), 50),
         color_ban_day = imgui.ImBuffer(tostring(config.adminstate.color_ban_day), 50),
         color_ban_now = imgui.ImBuffer(tostring(config.adminstate.color_ban_now), 50),
+
+        -- Цвета в виде RGBA float4 для imgui.ColorEdit3 (палитра + хекс)
+        color_nick_id_v4    = imgui.ImFloat4(hex_to_rgba(config.adminstate.color_nick_id)),
+        color_time_v4       = imgui.ImFloat4(hex_to_rgba(config.adminstate.color_time)),
+        color_online_day_v4 = imgui.ImFloat4(hex_to_rgba(config.adminstate.color_online_day)),
+        color_online_now_v4 = imgui.ImFloat4(hex_to_rgba(config.adminstate.color_online_now)),
+        color_afk_day_v4    = imgui.ImFloat4(hex_to_rgba(config.adminstate.color_afk_day)),
+        color_afk_now_v4    = imgui.ImFloat4(hex_to_rgba(config.adminstate.color_afk_now)),
+        color_ans_day_v4    = imgui.ImFloat4(hex_to_rgba(config.adminstate.color_ans_day)),
+        color_ans_now_v4    = imgui.ImFloat4(hex_to_rgba(config.adminstate.color_ans_now)),
+        color_mute_day_v4   = imgui.ImFloat4(hex_to_rgba(config.adminstate.color_mute_day)),
+        color_mute_now_v4   = imgui.ImFloat4(hex_to_rgba(config.adminstate.color_mute_now)),
+        color_kick_day_v4   = imgui.ImFloat4(hex_to_rgba(config.adminstate.color_kick_day)),
+        color_kick_now_v4   = imgui.ImFloat4(hex_to_rgba(config.adminstate.color_kick_now)),
+        color_jail_day_v4   = imgui.ImFloat4(hex_to_rgba(config.adminstate.color_jail_day)),
+        color_jail_now_v4   = imgui.ImFloat4(hex_to_rgba(config.adminstate.color_jail_now)),
+        color_ban_day_v4    = imgui.ImFloat4(hex_to_rgba(config.adminstate.color_ban_day)),
+        color_ban_now_v4    = imgui.ImFloat4(hex_to_rgba(config.adminstate.color_ban_now)),
 
         show_mute_day = imgui.ImBool(config.adminstate.show_mute_day), 
         show_mute_now = imgui.ImBool(config.adminstate.show_mute_now),
@@ -461,12 +497,12 @@ function EXPORTS.AdminStateMenu()
 			save() 
 		end    
 		imgui.SameLine()
-		imgui.PushItemWidth(65)
-		if imgui.InputText("##color_nick_id", elements.admin_state.color_nick_id) then  
-			config.adminstate.color_nick_id = elements.admin_state.color_nick_id.v  
+		if imgui.ColorEdit4("##color_nick_id", elements.admin_state.color_nick_id_v4, imgui.ColorEditFlags.NoInputs + imgui.ColorEditFlags.NoAlpha) then  
+			local _hex = rgba_to_hex_braced(elements.admin_state.color_nick_id_v4.v)  
+			elements.admin_state.color_nick_id.v = _hex  
+			config.adminstate.color_nick_id = _hex  
 			save() 
 		end
-		imgui.PopItemWidth()
 		imgui.SameLine()
 		imgui.SetCursorPosX(imgui.GetWindowWidth() - 250)
 		if imgui.Checkbox(u8'Показ времени', elements.admin_state.show_time) then  
@@ -474,22 +510,23 @@ function EXPORTS.AdminStateMenu()
 			save() 
 		end    
 		imgui.SameLine()
-		imgui.PushItemWidth(65)
-		if imgui.InputText("##color_time", elements.admin_state.color_time) then  
-			config.adminstate.color_time = elements.admin_state.color_time.v  
+		if imgui.ColorEdit4("##color_time", elements.admin_state.color_time_v4, imgui.ColorEditFlags.NoInputs + imgui.ColorEditFlags.NoAlpha) then  
+			local _hex = rgba_to_hex_braced(elements.admin_state.color_time_v4.v)  
+			elements.admin_state.color_time.v = _hex  
+			config.adminstate.color_time = _hex  
 			save() 
 		end
-		imgui.PopItemWidth()
 		if imgui.Checkbox(u8'Показ онлайна за день', elements.admin_state.show_online_day) then  
 			config.adminstate.show_online_day = elements.admin_state.show_online_day.v  
 			save() 
 		end
 		imgui.SameLine()
-		imgui.PushItemWidth(65)
-		if imgui.InputText("##color_online_day", elements.admin_state.color_online_day) then  
-			config.adminstate.color_online_day = elements.admin_state.color_online_day.v  
-			save() 
-		end    
+		if imgui.ColorEdit4("##color_online_day", elements.admin_state.color_online_day_v4, imgui.ColorEditFlags.NoInputs + imgui.ColorEditFlags.NoAlpha) then
+			local _hex = rgba_to_hex_braced(elements.admin_state.color_online_day_v4.v)
+			elements.admin_state.color_online_day.v = _hex
+			config.adminstate.color_online_day = _hex
+			save()
+		end
 		imgui.SameLine()
 		imgui.SetCursorPosX(imgui.GetWindowWidth() - 250)
 		if imgui.Checkbox(u8'Показ онлайна за сеанс', elements.admin_state.show_online_now) then  
@@ -497,22 +534,23 @@ function EXPORTS.AdminStateMenu()
 			save() 
 		end    
 		imgui.SameLine()
-		imgui.PushItemWidth(65)
-		if imgui.InputText("##color_online_now", elements.admin_state.color_online_now) then  
-			config.adminstate.color_online_now = elements.admin_state.color_online_now.v  
-			save() 
-		end    
+		if imgui.ColorEdit4("##color_online_now", elements.admin_state.color_online_now_v4, imgui.ColorEditFlags.NoInputs + imgui.ColorEditFlags.NoAlpha) then
+			local _hex = rgba_to_hex_braced(elements.admin_state.color_online_now_v4.v)
+			elements.admin_state.color_online_now.v = _hex
+			config.adminstate.color_online_now = _hex
+			save()
+		end
 		if imgui.Checkbox(u8'Показ AFK за день', elements.admin_state.show_afk_day) then  
 			config.adminstate.show_afk_day = elements.admin_state.show_afk_day.v  
 			save() 
 		end    
 		imgui.SameLine()
-		imgui.PushItemWidth(65)
-		if imgui.InputText("##color_afk_day", elements.admin_state.color_afk_day) then  
-			config.adminstate.color_afk_day = elements.admin_state.color_afk_day.v  
-			save() 
-		end    
-		imgui.PopItemWidth()
+		if imgui.ColorEdit4("##color_afk_day", elements.admin_state.color_afk_day_v4, imgui.ColorEditFlags.NoInputs + imgui.ColorEditFlags.NoAlpha) then
+			local _hex = rgba_to_hex_braced(elements.admin_state.color_afk_day_v4.v)
+			elements.admin_state.color_afk_day.v = _hex
+			config.adminstate.color_afk_day = _hex
+			save()
+		end
 		imgui.SameLine()
 		imgui.SetCursorPosX(imgui.GetWindowWidth() - 250)
 		if imgui.Checkbox(u8'Показ AFK за сеанс', elements.admin_state.show_afk_now) then  
@@ -520,23 +558,23 @@ function EXPORTS.AdminStateMenu()
 			save() 
 		end    
 		imgui.SameLine()
-		imgui.PushItemWidth(65)
-		if imgui.InputText("##color_afk_now", elements.admin_state.color_afk_now) then  
-			config.adminstate.color_afk_now = elements.admin_state.color_afk_now.v  
-			save() 
-		end    
-		imgui.PopItemWidth()
+		if imgui.ColorEdit4("##color_afk_now", elements.admin_state.color_afk_now_v4, imgui.ColorEditFlags.NoInputs + imgui.ColorEditFlags.NoAlpha) then
+			local _hex = rgba_to_hex_braced(elements.admin_state.color_afk_now_v4.v)
+			elements.admin_state.color_afk_now.v = _hex
+			config.adminstate.color_afk_now = _hex
+			save()
+		end
 		if imgui.Checkbox(u8'Показ репортов за день', elements.admin_state.show_report_day) then  
 			config.adminstate.show_report_day = elements.admin_state.show_report_day.v  
 			save() 
 		end    
 		imgui.SameLine()
-		imgui.PushItemWidth(65)
-		if imgui.InputText("##color_ans_day", elements.admin_state.color_ans_day) then  
-			config.adminstate.color_ans_day = elements.admin_state.color_ans_day.v  
-			save() 
-		end    
-		imgui.PopItemWidth()
+		if imgui.ColorEdit4("##color_ans_day", elements.admin_state.color_ans_day_v4, imgui.ColorEditFlags.NoInputs + imgui.ColorEditFlags.NoAlpha) then
+			local _hex = rgba_to_hex_braced(elements.admin_state.color_ans_day_v4.v)
+			elements.admin_state.color_ans_day.v = _hex
+			config.adminstate.color_ans_day = _hex
+			save()
+		end
 		imgui.SameLine()
 		imgui.SetCursorPosX(imgui.GetWindowWidth() - 250)
 		if imgui.Checkbox(u8'Показ репортов за сеанс', elements.admin_state.show_report_now) then  
@@ -544,23 +582,23 @@ function EXPORTS.AdminStateMenu()
 			save() 
 		end    
 		imgui.SameLine()
-		imgui.PushItemWidth(65)
-		if imgui.InputText("##color_ans_day", elements.admin_state.color_ans_now) then  
-			config.adminstate.color_ans_now = elements.admin_state.color_ans_now.v  
-			save() 
-		end    
-		imgui.PopItemWidth()
+		if imgui.ColorEdit4("##color_ans_now", elements.admin_state.color_ans_now_v4, imgui.ColorEditFlags.NoInputs + imgui.ColorEditFlags.NoAlpha) then
+			local _hex = rgba_to_hex_braced(elements.admin_state.color_ans_now_v4.v)
+			elements.admin_state.color_ans_now.v = _hex
+			config.adminstate.color_ans_now = _hex
+			save()
+		end
 		if imgui.Checkbox(u8'Показ мутов за день', elements.admin_state.show_mute_day) then  
 			config.adminstate.show_mute_day = elements.admin_state.show_mute_day.v  
 			save() 
 		end    
 		imgui.SameLine()
-		imgui.PushItemWidth(65)
-		if imgui.InputText("##color_mute_day", elements.admin_state.color_mute_day) then  
-			config.adminstate.color_mute_day = elements.admin_state.color_mute_day.v  
-			save() 
-		end    
-		imgui.PopItemWidth()
+		if imgui.ColorEdit4("##color_mute_day", elements.admin_state.color_mute_day_v4, imgui.ColorEditFlags.NoInputs + imgui.ColorEditFlags.NoAlpha) then
+			local _hex = rgba_to_hex_braced(elements.admin_state.color_mute_day_v4.v)
+			elements.admin_state.color_mute_day.v = _hex
+			config.adminstate.color_mute_day = _hex
+			save()
+		end
 		imgui.SameLine()
 		imgui.SetCursorPosX(imgui.GetWindowWidth() - 250)
 		if imgui.Checkbox(u8'Показ мутов за сеанс', elements.admin_state.show_mute_now) then  
@@ -568,23 +606,23 @@ function EXPORTS.AdminStateMenu()
 			save() 
 		end    
 		imgui.SameLine()
-		imgui.PushItemWidth(65)
-		if imgui.InputText("##color_mute_now", elements.admin_state.color_mute_now) then  
-			config.adminstate.color_mute_now = elements.admin_state.color_mute_now.v  
-			save() 
-		end    
-		imgui.PopItemWidth()
+		if imgui.ColorEdit4("##color_mute_now", elements.admin_state.color_mute_now_v4, imgui.ColorEditFlags.NoInputs + imgui.ColorEditFlags.NoAlpha) then
+			local _hex = rgba_to_hex_braced(elements.admin_state.color_mute_now_v4.v)
+			elements.admin_state.color_mute_now.v = _hex
+			config.adminstate.color_mute_now = _hex
+			save()
+		end
 		if imgui.Checkbox(u8'Показ киков за день', elements.admin_state.show_kick_day) then  
 			config.adminstate.show_kick_day = elements.admin_state.show_kick_day.v  
 			save() 
 		end    
 		imgui.SameLine()
-		imgui.PushItemWidth(65)
-		if imgui.InputText("##color_kick_day", elements.admin_state.color_kick_day) then  
-			config.adminstate.color_kick_day = elements.admin_state.color_kick_day.v  
-			save() 
-		end    
-		imgui.PopItemWidth()
+		if imgui.ColorEdit4("##color_kick_day", elements.admin_state.color_kick_day_v4, imgui.ColorEditFlags.NoInputs + imgui.ColorEditFlags.NoAlpha) then
+			local _hex = rgba_to_hex_braced(elements.admin_state.color_kick_day_v4.v)
+			elements.admin_state.color_kick_day.v = _hex
+			config.adminstate.color_kick_day = _hex
+			save()
+		end
 		imgui.SameLine()
 		imgui.SetCursorPosX(imgui.GetWindowWidth() - 250)
 		if imgui.Checkbox(u8'Показ киков за сеанс', elements.admin_state.show_kick_now) then  
@@ -592,23 +630,23 @@ function EXPORTS.AdminStateMenu()
 			save() 
 		end    
 		imgui.SameLine()
-		imgui.PushItemWidth(65)
-		if imgui.InputText("##color_kick_now", elements.admin_state.color_kick_now) then  
-			config.adminstate.color_kick_now = elements.admin_state.color_kick_now.v  
-			save() 
-		end    
-		imgui.PopItemWidth()
+		if imgui.ColorEdit4("##color_kick_now", elements.admin_state.color_kick_now_v4, imgui.ColorEditFlags.NoInputs + imgui.ColorEditFlags.NoAlpha) then
+			local _hex = rgba_to_hex_braced(elements.admin_state.color_kick_now_v4.v)
+			elements.admin_state.color_kick_now.v = _hex
+			config.adminstate.color_kick_now = _hex
+			save()
+		end
 		if imgui.Checkbox(u8'Показ джайлов за день', elements.admin_state.show_jail_day) then  
 			config.adminstate.show_jail_day = elements.admin_state.show_jail_day.v  
 			save() 
 		end   
 		imgui.SameLine()
-		imgui.PushItemWidth(65)
-		if imgui.InputText("##color_jail_day", elements.admin_state.color_jail_day) then  
-			config.adminstate.color_jail_day = elements.admin_state.color_jail_day.v  
-			save() 
-		end    
-		imgui.PopItemWidth()
+		if imgui.ColorEdit4("##color_jail_day", elements.admin_state.color_jail_day_v4, imgui.ColorEditFlags.NoInputs + imgui.ColorEditFlags.NoAlpha) then
+			local _hex = rgba_to_hex_braced(elements.admin_state.color_jail_day_v4.v)
+			elements.admin_state.color_jail_day.v = _hex
+			config.adminstate.color_jail_day = _hex
+			save()
+		end
 		imgui.SameLine()
 		imgui.SetCursorPosX(imgui.GetWindowWidth() - 250)
 		if imgui.Checkbox(u8'Показ джайлов за сеанс', elements.admin_state.show_jail_now) then  
@@ -616,23 +654,23 @@ function EXPORTS.AdminStateMenu()
 			save() 
 		end    
 		imgui.SameLine()
-		imgui.PushItemWidth(65)
-		if imgui.InputText("##color_jail_now", elements.admin_state.color_jail_now) then  
-			config.adminstate.color_jail_now = elements.admin_state.color_jail_now.v  
-			save() 
-		end    
-		imgui.PopItemWidth()
+		if imgui.ColorEdit4("##color_jail_now", elements.admin_state.color_jail_now_v4, imgui.ColorEditFlags.NoInputs + imgui.ColorEditFlags.NoAlpha) then
+			local _hex = rgba_to_hex_braced(elements.admin_state.color_jail_now_v4.v)
+			elements.admin_state.color_jail_now.v = _hex
+			config.adminstate.color_jail_now = _hex
+			save()
+		end
 		if imgui.Checkbox(u8'Показ банов за день', elements.admin_state.show_ban_day) then  
 			config.adminstate.show_ban_day = elements.admin_state.show_ban_day.v  
 			save() 
 		end    
 		imgui.SameLine()
-		imgui.PushItemWidth(65)
-		if imgui.InputText("##color_ban_day", elements.admin_state.color_ban_day) then  
-			config.adminstate.color_ban_day = elements.admin_state.color_ban_day.v  
-			save() 
-		end    
-		imgui.PopItemWidth()
+		if imgui.ColorEdit4("##color_ban_day", elements.admin_state.color_ban_day_v4, imgui.ColorEditFlags.NoInputs + imgui.ColorEditFlags.NoAlpha) then
+			local _hex = rgba_to_hex_braced(elements.admin_state.color_ban_day_v4.v)
+			elements.admin_state.color_ban_day.v = _hex
+			config.adminstate.color_ban_day = _hex
+			save()
+		end
 		imgui.SameLine()
 		imgui.SetCursorPosX(imgui.GetWindowWidth() - 250)
 		if imgui.Checkbox(u8'Показ банов за сеанс', elements.admin_state.show_ban_now) then  
@@ -640,12 +678,12 @@ function EXPORTS.AdminStateMenu()
 			save() 
 		end    
 		imgui.SameLine()
-		imgui.PushItemWidth(65)
-		if imgui.InputText("##color_ban_now", elements.admin_state.color_ban_now) then  
-			config.adminstate.color_ban_now = elements.admin_state.color_ban_now.v  
-			save() 
-		end   
-		imgui.PopItemWidth()
+		if imgui.ColorEdit4("##color_ban_now", elements.admin_state.color_ban_now_v4, imgui.ColorEditFlags.NoInputs + imgui.ColorEditFlags.NoAlpha) then
+			local _hex = rgba_to_hex_braced(elements.admin_state.color_ban_now_v4.v)
+			elements.admin_state.color_ban_now.v = _hex
+			config.adminstate.color_ban_now = _hex
+			save()
+		end
 		imgui.EndPopup()
 	end
 end

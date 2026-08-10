@@ -1,5 +1,4 @@
-script_description('Скрипт для отображения различных чатов и событий на экране (рендер)')
-script_author('alfantasyz')
+script_author('alfantasyz // modded: madoka')
 require "lib.moonloader"
 local fflags = require("moonloader").font_flag
 local inicfg = require 'inicfg'
@@ -34,7 +33,7 @@ if not config.settings then config.settings = {} end
 inicfg.save(config, directIni)
 
 -- ========================================================================
--- Шрифты (храним в таблице)
+-- Шрифты
 -- ========================================================================
 local fonts = {}
 
@@ -68,7 +67,7 @@ local function updateAllFonts()
 end
 
 -- ========================================================================
--- Данные чатов
+-- конфиг
 -- ========================================================================
 local elements = {
     boolean = {

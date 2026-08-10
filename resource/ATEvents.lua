@@ -1,29 +1,16 @@
-script_description('Вспомогательный скрипт мероприятий')
-script_author('alfantasyz')
-
--- ## Регистрация библиотек, плагинов и аддонов ## --
+script_author('alfantasyz // modded: madoka')
 require 'lib.moonloader'
-local encoding = require 'encoding' -- работа с кодировкой
-local inicfg = require 'inicfg' -- работа с INI файлами
-local imgui = require 'imgui' -- MoonImGUI || Пользовательский интерфейс
-local sampev = require 'lib.samp.events' -- работа с ивентами и пакетами SAMP
-local atlibs = require 'ATLibs' -- библиотека для работы с АТ
-
-local fai = require "fAwesome5" -- работа с иконками Font Awesome 5
-local fa = require 'faicons' -- работа с иконками Font Awesome 4
--- ## Регистрация библиотек, плагинов и аддонов ## --
-
--- ## Блок текстовых переменных ## --
-local tag = "{7d00ff} [AdminTools] {FFFFFF}" -- тэг AT
-encoding.default = 'CP1251' -- смена кодировки на CP1251
-u8 = encoding.UTF8 -- переименовка стандтартного режима кодировки UTF8 - u8
--- ## Блок текстовых переменных ## --
-
+local encoding = require 'encoding'
+local inicfg = require 'inicfg'
+local imgui = require 'imgui'
+local sampev = require 'lib.samp.events'
+local atlibs = require 'ATLibs'
+local fai = require "fAwesome5"
+local fa = require 'faicons'
 local dlstatus = require('moonloader').download_status
-
-
-
--- ## Блок переменных связанных с конфигами и элементами взаимодействия с параметрами конфига ## --
+local tag = "{7d00ff} [AdminTools] {FFFFFF}"
+encoding.default = 'CP1251'
+u8 = encoding.UTF8
 local ATMainDirect = "AdminTools\\settings.ini"
 local ATMainConfig = inicfg.load({
     main = {
@@ -179,7 +166,6 @@ end
 
 -- ## Блок обработки ивентов и пакетов SA:MP ## -- 
 function sampev.onServerMessage(color, text)
-
     if text:find("Администратор " .. atlibs.getMyNick() .. "%[(%d+)%] создал мероприятие") then  
         sampAddChatMessage(tag .. " Мероприятие было открыто.", -1)
         if elements.main.stream_window.v then  
