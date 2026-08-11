@@ -331,7 +331,7 @@ function sampev.onServerMessage(color, text)
                     if lc_text:find("/(.+) (%d+) (%d+) (.+)")
                        or lc_text:find("/(.+) (.+) (%d+) (.+)")
                        or lc_text:find("/iunban (.+)") then
-                        return -- админ-форма Ч отдаЄм событие в AdminTool
+                        return -- админ-форма - отдаЄм событие в AdminTool
                     end
                 end
             end
