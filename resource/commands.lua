@@ -1111,7 +1111,7 @@ cmd_massive = {
 	["prvr"] = {
 	cmd = "/mute",
 	reason = "провокация ранее",
-	time = 5000,
+	time = 3000,
 	},
 	-- ["rprvr"] = {
 	-- cmd = "/rmute",
@@ -1500,12 +1500,12 @@ cmd_massive = {
 	["prvf"] = {
 	cmd = "/mute",
 	reason = "провокация(forum)",
-	time = 5000,
+	time = 3000,
 	},
 	["oprvf"] = {
 	cmd = "/muteakk",
 	reason = "провокация(forum)",
-	time = 5000,
+	time = 3000,
 	},
 	
 	-- ## Команды для выдачи джайла ## --
