@@ -399,10 +399,11 @@ function EXPORTS.ActiveChatRenders()
         if imgui.ToggleButton('##toggle_'..key, bool) then
             save()
         end
-
-        if imgui.SettingsButton() then
-            imgui.OpenPopup('settings_popup_'..key)
-        end
+		if bool.v then
+			if imgui.SettingsButton() then
+				imgui.OpenPopup('settings_popup_'..key)
+			end
+		end
         if imgui.BeginPopupModal('settings_popup_'..key, false,
             imgui.WindowFlags.NoTitleBar + imgui.WindowFlags.NoResize + imgui.WindowFlags.AlwaysAutoResize)
         then
@@ -419,7 +420,7 @@ function EXPORTS.ActiveChatRenders()
             if sec.lines.v ~= prevLines then
                 save()
             end
-
+			
             local prevFont = sec.Font.v
             imgui.InputInt(u8"Шрифт##font_"..key, sec.Font)
             if sec.Font.v ~= prevFont then
@@ -438,15 +439,12 @@ function EXPORTS.ActiveChatRenders()
 
             imgui.Separator()
 
-            if imgui.Button(u8"Тест##test_"..key) then
-                fillTestOne(key)
-            end
-            imgui.SameLine()
-            if imgui.Button(u8"Очистить##clear_"..key) then
+            if imgui.Button(u8"Очистить##clear_"..key, imgui.ImVec2(0, 25)) then
                 elements[key].chat_lines = {}
             end
             imgui.SameLine()
-            if imgui.Button(u8"Позиция##pos_"..key) then
+            if imgui.Button(u8"Позиция##pos_"..key, imgui.ImVec2(0, 25)) then
+				fillTestOne(key)
                 no_saved.X, no_saved.Y = sec.X, sec.Y
                 sec.pos = true
                 sampAddChatMessage(tag .. "(1) - сохранить позицию", -1)

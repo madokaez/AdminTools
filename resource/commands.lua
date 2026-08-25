@@ -708,7 +708,7 @@ cmd_massive = {
 	
 	
 	
-	["ct"] = {
+	["pt"] = {
 	cmd = "/jail",
 	reason = "помеха /trade",
 	time = 300,
@@ -1116,7 +1116,7 @@ cmd_massive = {
 	-- ["rprvr"] = {
 	-- cmd = "/rmute",
 	-- reason = "провокация ранее",
-	-- time = 5000,
+	-- time = 3000,
 	-- },
 	
 	
@@ -1182,14 +1182,6 @@ cmd_massive = {
 	["zvr"] = {
 	cmd = "/jail",
 	reason = "злоуп.вип ранее",
-	time = 3000,
-	},
-	
-	
-	
-	["jbg3r"] = {
-	cmd = "/jail",
-	reason = "багоюз ранее",
 	time = 3000,
 	},
 	
@@ -1744,13 +1736,12 @@ CMDBAN =
 CMDJAIL = 
 "/sk [ID] - спавнкилл \n/osk [NICK] - спавнкилл (оффлайн) \n/skf [ID] - спавнкилл (forum) \n/oskf [NICK] - спавнкилл (forum) (оффлайн) \n/skr [ID] - спавнкилл ранее \n \n" ..
 "/dz [ID] - дм/дб в зз \n/odz [NICK] - дм/дб в зз (оффлайн) \n/dzf [ID] - дм/дб в зз (forum) \n/odzf [NICK] - дм/дб в зз (forum) (оффлайн) \n/dzr [ID] - дм/дб в зз ранее \n \n" ..
-"/ct [NICK] - кар/трейд \n \n" ..
+"/pt [NICK] - помеха трейд \n \n" ..
 "/npm [ID] - нарушение правил мп \n/onpm [NICK] - нарушение правил мп (оффлайн) \n \n" ..
 "/jbg [ID] - багоюз \n/ojbg [NICK] - багоюз (оффлайн) \n/jbgf [ID] - багоюз (forum) \n/ojbgf [NICK] - багоюз (forum) (оффлайн) \n/jbgr [ID] - багоюз ранее \n \n" ..
 "/npgw [ID] - нарушение правил гв \n/onpgw [NICK] - нарушение правил гв (оффлайн) \n/npgwf [ID] - нарушение правил гв (forum) \n/onpgwf [NICK] - нарушение правил гв (forum) (оффлайн) \n/npgwr [ID] - нарушение правил гв ранее \n \n" ..
 "/jch [ID] - чит 900 \n/ojch [NICK] - чит 900 (оффлайн) \n/jchf [ID] - чит 900 (forum) \n/ojchf [NICK] - чит 900 (forum) (оффлайн) \n/jchr [ID] - чит 900 ранее \n \n" ..
 "/dbk [ID] - дб зз ковш \n/odbk [NICK] - дб зз ковш (оффлайн) \n/dbkf [ID] - дб зз ковш (forum) \n/odbkf [NICK] - дб зз ковш (forum) (оффлайн) \n/dbkr [ID] - дб зз ковш ранее \n \n" ..
-"/js [ID] - сбив \n/ojs [NICK] - сбив (оффлайн) \n/jsf [ID] - сбив (forum) \n/ojsf [NICK] - сбив (forum) (оффлайн) \n/jsr [ID] - сбив ранее \n \n" ..
 "/sm [ID] - срыв мп \n/osm [NICK] - срыв мп (оффлайн) \n \n" ..
 "/jch3 [ID] - чит 3000 \n/ojch3 [NICK] - чит 3000 (оффлайн) \n/jchr3 [ID] - чит 3000 ранее \n \n" ..
 "/zv [ID] - злоуп.вип \n/ozv [NICK] - злоуп.вип (оффлайн) \n/zvf [ID] - злоуп.вип (forum) \n/ozvf [NICK] - злоуп.вип (forum) (оффлайн) \n/zvr [ID] - злоуп.вип ранее \n \n" ..

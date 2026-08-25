@@ -445,7 +445,7 @@ function imgui.OnDrawFrame()
         imgui.SetNextWindowSize(imgui.ImVec2(360, math.min(600, sh - 80)), imgui.Cond.FirstUseEver)
         imgui.Begin("Event Stream", EventStream, imgui.WindowFlags.NoCollapse)
         imgui.PushStyleVar(imgui.StyleVar.ButtonTextAlign, imgui.ImVec2(0.5, 0.5))
-
+		atlibs.imgui_TextColoredRGB('{d1ac5c}"X" - курсор', 2, 2)
         if imgui.Button(u8"Закрыть окно", imgui.ImVec2(-1, 25)) then EventStream.v = false end; imgui.Tooltip(u8"Использовать в том случае, когда данное окно не является необходимым для проведения мероприятия; \nЛибо же мероприятие закончилось, а окно автоматически не закрылось")
         if imgui.Button(u8"Закрыть /tpmp", imgui.ImVec2(170, 25)) then
             lua_thread.create(function()
@@ -470,7 +470,7 @@ function imgui.OnDrawFrame()
             sampSendChat("/mess 6 После телепортации - в строй.")
             sampSendChat("/mess 6 Успейте, до начала мероприятия!")
         end
-        if imgui.Button(u8"Удачно/Неудачно (/try)", imgui.ImVec2(170, 25)) then
+        if imgui.Button(u8"Убит?(/try)", imgui.ImVec2(170, 25)) then
             sampSendChat("/try Убит?")
         end
         imgui.SameLine()
@@ -614,3 +614,11 @@ function EXPORTS.OffScript()
     imgui.ShowCursor = false
     thisScript():unload()
 end
+
+
+
+-- 233.8496,701.3986,819.9818 5 - рынок
+-- 1267.663208,-781.323242,1091.906250 5 - дом меддога
+-- 2193.6137695313 1593.1456298828 1005.5591430664 1 - казино калуга
+-- 366.88662719727 174.12153625488 1008.7941894531 3 - банк
+-- 1275.7513427734 -15.901121139526 1001.0238037109 18 - завод резня на бинзопилах
