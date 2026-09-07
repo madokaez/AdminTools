@@ -508,7 +508,10 @@ function EXPORTS.AdminStateMenu()
 		if imgui.Checkbox(u8'Показ времени', elements.admin_state.show_time) then  
 			config.adminstate.show_time = elements.admin_state.show_time.v  
 			save() 
-		end    
+			if elements.admin_state.show_time.v and _G.AT_OnDateEnabled then
+				_G.AT_OnDateEnabled()
+			end
+		end  
 		imgui.SameLine()
 		if imgui.ColorEdit4("##color_time", elements.admin_state.color_time_v4, imgui.ColorEditFlags.NoInputs + imgui.ColorEditFlags.NoAlpha) then  
 			local _hex = rgba_to_hex_braced(elements.admin_state.color_time_v4.v)  
@@ -688,8 +691,18 @@ function EXPORTS.AdminStateMenu()
 	end
 end
 
+function EXPORTS.IsDateShown()
+    return config.settings.admin_state == true and elements.admin_state.show_time.v == true
+end
+
+function EXPORTS.SetDateShown(v)
+    elements.admin_state.show_time.v = v
+    config.adminstate.show_time = v
+    save()
+end
+
 function EXPORTS.OffScript()
     imgui.Process = false
     imgui.ShowCursor = false
     thisScript():unload()
-end 
+end
