@@ -269,7 +269,7 @@ end
 -- ## Регистрация ссылок для GitHub, переменных для обновления ## --
 local urls = {
 	['updater'] = 'https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/updateAT.ini',
-	["main"] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/AdminTool.lua",
+	["main"] = thisScript().path,
 	["pluginsAT"] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/module/plugins/plugin.lua",
 	["otherAT"] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/module/plugins/other.lua",
 	["libs"] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/lib/libsfor.lua",
@@ -304,6 +304,9 @@ local paths = {
 }
 
 local function downloadAll() -- функция для обновления скриптов
+	if updateInProgress then return end
+	updateInProgress = true
+
 	lua_thread.create(function()
 		for i, v in pairs(urls) do  
 			downloadUrlToFile(v, paths[i], function(id, status)
@@ -338,7 +341,7 @@ local upd_upvalue = { -- массив для регистрации выборочного обновления
 local script_stream = 10
 local script_version_text = "14.7.1"
 local check_update = false
-
+local updateCheckStarted = false
 -- ## Регистрация ссылок для GitHub, переменных для обновления ## --
 
 -- ## Блок переменных связанных с конфигами и элементами взаимодействия с параметрами конфига ## --
@@ -974,30 +977,40 @@ function main()
         wait(0)
         imgui.Process = true 
 
-		checkForUpdates()
-
-		downloadUrlToFile(urls['updater'], paths['updater'], function(id, status)
-			upd = inicfg.load(nil, paths['updater'])
-			if status == dlstatus.STATUS_ENDDOWNLOADDATA then  
-				if tonumber(upd.info.version) > script_stream then
-					lua_thread.create(function()
-						if notf_res then  
-							showNotification('У Вас установлена неактуальная версия. Начинаем автообновление.')
-						end
-						sampAddChatMessage(tag .. 'Доступно обновление. AT начинает автообновление!', -1)
-						sampAddChatMessage(tag .. 'Просьба, не взаимодействуйте с игрой, пока AT не завершит обновление', -1)
+		if not updateCheckStarted then
+			updateCheckStarted = true
+		
+			downloadUrlToFile(urls['updater'], paths['updater'], function(id, status)
+				if status ~= dlstatus.STATUS_ENDDOWNLOADDATA then
+					return
+				end
+		
+				lua_thread.create(function()
+					local loaded, upd = pcall(inicfg.load, nil, paths['updater'])
+		
+					local remoteVersion = loaded
+						and type(upd) == 'table'
+						and type(upd.info) == 'table'
+						and tonumber(upd.info.version)
+		
+					if not remoteVersion then
+						sampAddChatMessage(
+							tag .. 'Не удалось прочитать версию обновления.',
+							-1
+						)
+						return
+					end
+		
+					if remoteVersion > script_stream then
+						sampAddChatMessage(
+							tag .. 'Доступно обновление. Начинаем скачивание.',
+							-1
+						)
 						check_update = true
-					end)
-				end 
-			else 
-				if notf_res then  
-					showNotification('У Вас установлена актуальная версия. \nВерсия: ' .. script_version_text)
-				else 
-					sampfuncsLog(log .. 'Проблема с системой уведомлений. Установите систему через Настройки.')
-					sampAddChatMessage(tag .. 'Установлена актуальная версия. Обновление не требуется.')
-				end 
-			end 
-		end)
+					end
+				end)
+			end)
+		end
 		
 		if check_update then
 			check_update = false
