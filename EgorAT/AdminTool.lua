@@ -268,8 +268,8 @@ end
 
 -- ## Регистрация ссылок для GitHub, переменных для обновления ## --
 local urls = {
-	['updater'] = 'https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/updateAT.ini',
-	["main"] = thisScript().path,
+	['updater'] = 'https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/updateAT.ini',	
+	["main"] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/AdminTool.lua",
 	["pluginsAT"] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/module/plugins/plugin.lua",
 	["otherAT"] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/module/plugins/other.lua",
 	["libs"] = "https://raw.githubusercontent.com/madokaez/AdminTools/main/EgorAT/lib/libsfor.lua",
@@ -287,7 +287,7 @@ local urls = {
 
 local paths = {
 	['updater'] = getWorkingDirectory() .. "/updateAT.ini",
-	["main"] = getWorkingDirectory() .. "/AdminTool.lua",
+	["main"] = thisScript().path,
 	["pluginsAT"] = getWorkingDirectory() .. "/module/plugins/plugin.lua",
 	["otherAT"] = getWorkingDirectory() .. "/module/plugins/other.lua",
 	["libs"] = getWorkingDirectory() .. "/lib/libsfor.lua",
@@ -317,7 +317,6 @@ local function downloadAll() -- функция для обновления скриптов
 		end
 
 		wait(10000)
-		sampAddChatMessage(tag .. 'Пакет AdminTool успешно обновлен. Перезагружаем скрипты.')
 		reloadScripts()
 	end)
 end
@@ -1002,10 +1001,6 @@ function main()
 					end
 		
 					if remoteVersion > script_stream then
-						sampAddChatMessage(
-							tag .. 'Доступно обновление. Начинаем скачивание.',
-							-1
-						)
 						check_update = true
 					end
 				end)
